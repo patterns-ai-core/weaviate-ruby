@@ -1,16 +1,13 @@
-{
-  "objects": [
-    {
-      "class": "Question",
-      "creationTimeUnix": 1679757150769,
-      "id": "123",
-      "lastUpdateTimeUnix": 1679757150769,
-      "properties": {
-        "answer": "42",
-        "category": "philosophy",
-        "question": "What is the meaning of life?"
-      }
+[
+  {
+    "class": "Question",
+    "creationTimeUnix": 1679757150769,
+    "id": "123",
+    "lastUpdateTimeUnix": 1679757150769,
+    "properties": {
+      "answer": "42",
+      "category": "philosophy",
+      "question": "What is the meaning of life?"
     }
-  ],
-  "totalResults": 1
-}
+  }
+]

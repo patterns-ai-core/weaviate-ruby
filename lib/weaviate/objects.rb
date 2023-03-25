@@ -50,7 +50,10 @@ module Weaviate
       response = client.connection.post("batch/#{PATH}") do |req|
         req.body = {objects: objects}
       end
-      Response::Collection.from_response(response, key: "objects", type: Response::Object)
+
+      if response.success?
+        Response::Collection.from_response(response, type: Response::Object)
+      end
     end
 
     # Get a single data object.

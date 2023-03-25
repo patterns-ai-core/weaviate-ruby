@@ -37,7 +37,7 @@ RSpec.describe Weaviate::Objects do
   end
 
   describe "#list" do
-    let(:response) { OpenStruct.new(body: objects_fixture) }
+    let(:response) { OpenStruct.new(body: {"objects" => objects_fixture}) }
 
     before do
       allow_any_instance_of(Faraday::Connection).to receive(:get)

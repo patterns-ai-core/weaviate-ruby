@@ -114,16 +114,16 @@ client.objects.update(
 )
 
 # Batch create objects
-client.objects.batch_create(objects: [
+response = client.objects.batch_create(objects: [
     {
-        class_name: "Question",
+        class: "Question",
         properties: {
         answer: "42",
         question: "What is the meaning of life?",
         category: "philosophy"
         }
     }, {
-        class_name: "Question",
+        class: "Question",
         properties: {
         answer: "42",
         question: "What does 6 times 7 equal to?",
@@ -131,6 +131,7 @@ client.objects.batch_create(objects: [
         }
     }
 ])
+response.data
 ```
 
 ## Development
