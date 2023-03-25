@@ -3,7 +3,7 @@
     {
       "class": "Question",
       "creationTimeUnix": 1679757150769,
-      "id": "e90f6223-ff79-4142-a8b3-f6c38bb518f1",
+      "id": "123",
       "lastUpdateTimeUnix": 1679757150769,
       "properties": {
         "answer": "42",
@@ -11,5 +11,6 @@
         "question": "What is the meaning of life?"
       }
     }
-  ]
+  ],
+  "totalResults": 1
 }

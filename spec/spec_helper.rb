@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "weaviate"
-require "faraday"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

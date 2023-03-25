@@ -39,7 +39,8 @@ module Weaviate
     end
 
     def meta
-      Weaviate::Meta.new(client: self).get
+      @meta ||= Weaviate::Meta.new(client: self)
+      @meta.get
     end
 
     def objects

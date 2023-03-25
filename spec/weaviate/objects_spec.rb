@@ -36,7 +36,7 @@ RSpec.describe Weaviate::Objects do
     end
   end
 
-  describe "list" do
+  describe "#list" do
     let(:response) { OpenStruct.new(body: objects_fixture) }
 
     before do
@@ -45,8 +45,10 @@ RSpec.describe Weaviate::Objects do
         .and_return(response)
     end
 
-    it "returns the schema" do
-      expect(objects.list).to be_a(Weaviate::Response::Collection)
+    it "returns objects" do
+      response = objects.list
+      expect(response).to be_a(Weaviate::Response::Collection)
+      expect(response.total_results).to eq(1)
     end
   end
 
@@ -55,48 +57,48 @@ RSpec.describe Weaviate::Objects do
 
     before do
       allow_any_instance_of(Faraday::Connection).to receive(:get)
-        .with("objects/Question/d50ff869-5bd3-4680-b87d-09c37eea4437")
+        .with("objects/Question/123")
         .and_return(response)
     end
 
     it "gets an object" do
       expect(objects.get(
         class_name: "Question",
-        id: "d50ff869-5bd3-4680-b87d-09c37eea4437"
+        id: "123"
       )).to be_a(Weaviate::Response::Object)
     end
   end
 
-  describe "delete" do
+  describe "#delete" do
     let(:response) { OpenStruct.new(success?: true, body: "") }
 
     before do
       allow_any_instance_of(Faraday::Connection).to receive(:delete)
-        .with("objects/Question/d50ff869-5bd3-4680-b87d-09c37eea4437")
+        .with("objects/Question/123")
         .and_return(response)
     end
 
-    it "returns the schema" do
+    it "deletes an object" do
       expect(objects.delete(
         class_name: "Question",
-        id: "d50ff869-5bd3-4680-b87d-09c37eea4437"
+        id: "123"
       )).to be_equal(true)
     end
   end
 
-  describe "update" do
+  describe "#update" do
     let(:response) { OpenStruct.new(success?: true, body: object_fixture) }
 
     before do
       allow_any_instance_of(Faraday::Connection).to receive(:put)
-        .with("objects/Question/d50ff869-5bd3-4680-b87d-09c37eea4437")
+        .with("objects/Question/123")
         .and_return(response)
     end
 
     it "returns the schema" do
       expect(objects.update(
         class_name: "Question",
-        id: "d50ff869-5bd3-4680-b87d-09c37eea4437",
+        id: "123",
         properties: {
           question: "What does 6 times 7 equal to?",
           category: "math",
@@ -106,7 +108,7 @@ RSpec.describe Weaviate::Objects do
     end
   end
 
-  describe "batch_create" do
+  describe "#batch_create" do
     let(:response) { OpenStruct.new(success?: true, body: objects_fixture) }
 
     before do
@@ -115,7 +117,7 @@ RSpec.describe Weaviate::Objects do
         .and_return(response)
     end
 
-    it "creates an object" do
+    it "batch creates objects" do
       expect(objects.batch_create(objects: [
         {
           class_name: "Question",

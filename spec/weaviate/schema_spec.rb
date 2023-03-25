@@ -16,7 +16,7 @@ RSpec.describe Weaviate::Schema do
   let(:classes_fixture) { JSON.parse(File.read("spec/fixtures/classes.json")) }
   let(:shard_fixture) { JSON.parse(File.read("spec/fixtures/shards.json")) }
 
-  describe "list" do
+  describe "#list" do
     let(:response) { OpenStruct.new(body: classes_fixture) }
 
     before do
@@ -25,12 +25,12 @@ RSpec.describe Weaviate::Schema do
         .and_return(response)
     end
 
-    it "returns the schema" do
+    it "returns schemas" do
       expect(schema.list).to be_a(Weaviate::Response::Collection)
     end
   end
 
-  describe "get" do
+  describe "#get" do
     let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
 
     before do
@@ -44,7 +44,7 @@ RSpec.describe Weaviate::Schema do
     end
   end
 
-  describe "create" do
+  describe "#create" do
     let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
 
     before do
@@ -76,7 +76,7 @@ RSpec.describe Weaviate::Schema do
     end
   end
 
-  describe "delete" do
+  describe "#delete" do
     let(:response) { OpenStruct.new(success?: true, body: "") }
 
     before do
@@ -92,7 +92,7 @@ RSpec.describe Weaviate::Schema do
     end
   end
 
-  describe "update" do
+  describe "#update" do
     let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
 
     before do
@@ -109,7 +109,7 @@ RSpec.describe Weaviate::Schema do
     end
   end
 
-  describe "shards" do
+  describe "#shards" do
     let(:response) { OpenStruct.new(success?: true, body: shard_fixture) }
 
     before do
@@ -118,7 +118,7 @@ RSpec.describe Weaviate::Schema do
         .and_return(response)
     end
 
-    it "returns the schema" do
+    it "returns shards info" do
       expect(schema.shards(class_name: "Question")).to be_equal(shard_fixture)
     end
   end
@@ -132,7 +132,7 @@ RSpec.describe Weaviate::Schema do
         .and_return(response)
     end
 
-    it "returns the schema" do
+    it "returns shards info" do
       expect(schema.update_shard_status(
         class_name: "Question",
         shard_name: "xyz123",
