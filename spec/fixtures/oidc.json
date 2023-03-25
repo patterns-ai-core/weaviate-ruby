@@ -1,0 +1,4 @@
+{
+  "href": "http://my-token-issuer/auth/realms/my-weaviate-usecase",
+  "cliendID": "my-weaviate-client"
+}
