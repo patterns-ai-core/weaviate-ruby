@@ -17,11 +17,13 @@ If bundler is not being used to manage dependencies, install the gem by executin
 ### Instantiating the API client
 
 ```ruby
+require 'weaviate'
+
 client = Weaviate::Client.new(
     scheme: 'https',
     host: 'some-endpoint.weaviate.network',  # Replace with your endpoint
-    model_service: :openai, # Service that will be used to generate vector. Allowed values: :openai, :cohere, :huggingface
-    model_service_api_key: 'xxxxxxx' # Either OpenAI, Co:here or Hugging Face API key
+    model_service: :openai, # Service that will be used to generate vectors. Possible values: :openai, :cohere, :huggingface
+    model_service_api_key: 'xxxxxxx' # Either OpenAI, Cohere or Hugging Face API key
 )
 ```
 
@@ -53,7 +55,8 @@ client.schema.create(
 client.schema.get(class_name: 'Question')
 
 # Dumps the current Weaviate schema. 
-client.schema.list()
+response = client.schema.list()
+response.data
 
 # Remove a class (and all data in the instances) from the schema.
 client.schema.delete(class_name: 'Question')
@@ -62,7 +65,7 @@ client.schema.delete(class_name: 'Question')
 client.schema.update(class_name: 'Question')
 
 # Inspect the shards of a class
-client.schema.shards()
+client.schema.shards(class_name: 'Question')
 ```
 
 ### Using the Objects endpoint
@@ -78,7 +81,8 @@ client.objects.create(
 )
 
 # Lists all data objects in reverse order of creation.
-client.objects.list()
+response = client.objects.list()
+response.data
 
 # Get a single data object.
 client.objects.get(

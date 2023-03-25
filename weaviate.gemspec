@@ -3,7 +3,7 @@
 require_relative "lib/weaviate/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "weaviate"
+  spec.name = "weaviate-ruby"
   spec.version = Weaviate::VERSION
   spec.authors = ["Andrei Bondarev"]
   spec.email = ["andrei@sourcelabs.io", "andrei.bondarev13@gmail.com"]

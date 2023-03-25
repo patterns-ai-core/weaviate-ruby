@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    weaviate (0.1.0)
+    weaviate-ruby (0.1.0)
       faraday (~> 2.7)
 
 GEM
@@ -76,7 +76,7 @@ DEPENDENCIES
   rake (~> 13.0)
   rspec (~> 3.0)
   standard (~> 1.25.0)
-  weaviate!
+  weaviate-ruby!
 
 BUNDLED WITH
    2.4.0
