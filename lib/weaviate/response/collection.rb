@@ -1,14 +1,14 @@
 # frozen_string_literal: true
-
+require 'pry'
 module Weaviate
   module Response
     class Collection
       attr_reader :data, :total_results
 
-      def self.from_response(response, key:, type:)
+      def self.from_response(response, key: nil, type:)
         body = response.body
         new(
-          data: body[key].map { |attrs| type.new(attrs) },
+          data: (key.nil? ? body : body[key]).map { |attrs| type.new(attrs) },
           total_results: body["totalResults"]
         )
       end
