@@ -5,10 +5,10 @@ module Weaviate
     class Collection
       attr_reader :data, :total_results
 
-      def self.from_response(response, key:, type:)
+      def self.from_response(response, type:, key: nil)
         body = response.body
         new(
-          data: body[key].map { |attrs| type.new(attrs) },
+          data: (key.nil? ? body : body[key]).map { |attrs| type.new(attrs) },
           total_results: body["totalResults"]
         )
       end

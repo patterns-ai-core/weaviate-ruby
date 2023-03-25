@@ -4,24 +4,21 @@ module Weaviate
   class Schema < Base
     PATH = "schema"
 
-    # TESTED
     # Dumps the current Weaviate schema. The result contains an array of objects.
     def list
       response = client.connection.get(PATH)
       Response::Collection.from_response(response, key: "classes", type: Response::Class)
     end
 
-    # TESTED
     # Get a single class from the schema
     def get(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}")
 
-      if status.success?
+      if response.success?
         Response::Class.new(response.body)
       end
     end
 
-    # TESTED
     # Create a new data object class in the schema.
     def create(
       class_name:,
@@ -54,14 +51,12 @@ module Weaviate
       end
     end
 
-    # TESTED
     # Remove a class (and all data in the instances) from the schema.
     def delete(class_name:)
       response = client.connection.delete("#{PATH}/#{class_name}")
-      response.status == 200 && response.body.empty?
+      response.success? && response.body.empty?
     end
 
-    # TESTED
     # Update settings of an existing schema class.
     def update(
       class_name:,
@@ -96,17 +91,19 @@ module Weaviate
 
     # Inspect the shards of a class
     def shards(class_name:)
-      client.connection.get("#{PATH}/#{class_name}/shards")
+      response = client.connection.get("#{PATH}/#{class_name}/shards")
+      response.body if response.success?
     end
 
     # Update shard status
     def update_shard_status(class_name:, shard_name:, status:)
       validate_status!(status)
 
-      client.connection.put("#{PATH}/#{class_name}/shards/#{shard_name}") do |req|
+      response = client.connection.put("#{PATH}/#{class_name}/shards/#{shard_name}") do |req|
         req.body = {}
         req.body["status"] = status
       end
+      response.body if response.success?
     end
 
     private

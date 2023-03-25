@@ -4,7 +4,6 @@ module Weaviate
   class Objects < Base
     PATH = "objects"
 
-    # TESTED
     # Lists all data objects in reverse order of creation. The data will be returned as an array of objects.
     def list(
       class_name: nil,
@@ -24,11 +23,9 @@ module Weaviate
         req.params["sort"] = sort unless sort.nil?
         req.params["order"] = order unless order.nil?
       end
-
       Response::Collection.from_response(response, key: "objects", type: Response::Object)
     end
 
-    # TESTED
     # Create a new data object. The provided meta-data and schema values are validated.
     def create(
       class_name:,
@@ -36,22 +33,25 @@ module Weaviate
       id: nil,
       vector: nil
     )
-      client.connection.post(PATH) do |req|
+      response = client.connection.post(PATH) do |req|
         req.body = {}
         req.body["class"] = class_name
         req.body["properties"] = properties
         req.body["id"] = id unless id.nil?
         req.body["vector"] = vector unless vector.nil?
       end
-    end
-
-    def batch_create(objects:)
-      client.connection.post("batch/#{PATH}") do |req|
-        req.body = {objects: objects}
+      if response.success?
+        Weaviate::Response::Object.new(response.body)
       end
     end
 
-    # TESTED
+    def batch_create(objects:)
+      response = client.connection.post("batch/#{PATH}") do |req|
+        req.body = {objects: objects}
+      end
+      Response::Collection.from_response(response, key: "objects", type: Response::Object)
+    end
+
     # Get a single data object.
     def get(
       class_name:,
@@ -65,19 +65,17 @@ module Weaviate
         req.params["include"] = include unless include.nil?
       end
 
-      if status.success?
+      if response.success?
         Weaviate::Response::Object.new(response.body)
       end
     end
 
-    # TESTED
     # Check if a data object exists
     def exists?(class_name:, id:)
       response = client.connection.head("#{PATH}/#{class_name}/#{id}")
       response.status == 204
     end
 
-    # TESTED
     # Update an individual data object based on its uuid.
     def update(
       class_name:,
@@ -85,20 +83,22 @@ module Weaviate
       properties:,
       vector: nil
     )
-      client.connection.put("#{PATH}/#{class_name}/#{id}") do |req|
+      response = client.connection.put("#{PATH}/#{class_name}/#{id}") do |req|
         req.body = {}
         req.body["id"] = id
         req.body["class"] = class_name
         req.body["properties"] = properties
         req.body["vector"] = vector unless vector.nil?
       end
+      if response.success?
+        Weaviate::Response::Object.new(response.body)
+      end
     end
 
-    # TESTED
     # Delete an individual data object from Weaviate.
     def delete(class_name:, id:)
       response = client.connection.delete("#{PATH}/#{class_name}/#{id}")
-      response.status == 200 && response.body.empty?
+      response.success? && response.body.empty?
     end
 
     # Validate a data object

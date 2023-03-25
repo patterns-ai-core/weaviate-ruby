@@ -6,47 +6,78 @@ Welcome to your new gem! In this directory, you'll find the files you need to be
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+    $ bundle add weaviate-ruby
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+    $ gem install weaviate-ruby
 
 ## Usage
+
+### Instantiating the API client
 
 ```ruby
 client = Weaviate::Client.new(
     scheme: 'https',
-    host: 'some-endpoint.weaviate.network',  // Replace with your endpoint
+    host: 'some-endpoint.weaviate.network',  # Replace with your endpoint
+    model_service: :openai, # Service that will be used to generate vector. Allowed values: :openai, :cohere, :huggingface
+    model_service_api_key: ENV["MODEL_SERVICE_API_KEY"] # Either OpenAI, Co:here or Hugging Face API key
 )
+```
 
-client.schema.get()
+### Using the Schema endpoints
 
-class_obj = {
-    "class": "Article",
-    "description": "A written text, for example a news article or blog post",
-    "properties": [
+```ruby
+# Creating a new data object class in the schema
+client.schema.create(
+    class_name: 'Question',
+    description: 'Information from a Jeopardy! question',
+    properties: [
         {
-        "dataType": [
-            "string"
-        ],
-        "description": "Title of the article",
-        "name": "title",
-        },
-        {
-        "dataType": [
-            "text"
-        ],
-        "description": "The content of the article",
-        "name": "content"
+            "dataType": ["text"],
+            "description": "The question",
+            "name": "question"
+        } ,{ 
+            "dataType": ["text"],
+            "description": "The answer",
+            "name": "answer"
+        }, {
+            "dataType": ["text"],
+            "description": "The category",
+            "name": "category"
         }
     ]
-}
-client.schema.create_class(class_obj)
+)
+
+# Get a single class from the schema
+client.schema.get(class_name: 'Question')
+
+# Dumps the current Weaviate schema. 
+client.schema.list()
+
+# Remove a class (and all data in the instances) from the schema.
+client.schema.delete(class_name: 'Question')
+
+# Update settings of an existing schema class.
+client.schema.update(class_name: 'Question')
+
+# Inspect the shards of a class
+client.schema.shards()
+```
+
+### Using the Objects endpoint
+```ruby
+# Create a new data object. 
+client.objects.create(
+    class_name: 'Question',
+    properties: {
+        answer: '42',
+        question: 'What is the meaning of life?',
+        category: 'philosophy'
+    }
+)
 ```
 
 ## Development

@@ -14,8 +14,6 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.6.0"
 
-  spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
-
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/andreibondarev/weaviate"
   spec.metadata["changelog_uri"] = "https://github.com/andreibondarev/weaviate/CHANGELOG.md"
@@ -38,5 +36,5 @@ Gem::Specification.new do |spec|
   # guide at: https://bundler.io/guides/creating_gem.html
 
   spec.add_dependency "faraday", "~> 2.7"
-  spec.add_dependency "pry-byebug", "~> 3.9"
+  spec.add_development_dependency "pry-byebug", "~> 3.9"
 end
