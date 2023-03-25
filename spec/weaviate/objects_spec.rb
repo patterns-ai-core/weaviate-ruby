@@ -28,9 +28,9 @@ RSpec.describe Weaviate::Objects do
       expect(objects.create(
         class_name: "Question",
         properties: {
-          answer: '42',
-          question: 'What is the meaning of life?',
-          category: 'philosophy'
+          answer: "42",
+          question: "What is the meaning of life?",
+          category: "philosophy"
         }
       )).to be_a(Weaviate::Response::Object)
     end
@@ -61,14 +61,14 @@ RSpec.describe Weaviate::Objects do
 
     it "gets an object" do
       expect(objects.get(
-        class_name: 'Question',
-        id: 'd50ff869-5bd3-4680-b87d-09c37eea4437'
+        class_name: "Question",
+        id: "d50ff869-5bd3-4680-b87d-09c37eea4437"
       )).to be_a(Weaviate::Response::Object)
     end
   end
 
   describe "delete" do
-    let(:response) { OpenStruct.new(success?: true, body: '') }
+    let(:response) { OpenStruct.new(success?: true, body: "") }
 
     before do
       allow_any_instance_of(Faraday::Connection).to receive(:delete)
@@ -78,8 +78,8 @@ RSpec.describe Weaviate::Objects do
 
     it "returns the schema" do
       expect(objects.delete(
-        class_name: 'Question',
-        id: 'd50ff869-5bd3-4680-b87d-09c37eea4437'
+        class_name: "Question",
+        id: "d50ff869-5bd3-4680-b87d-09c37eea4437"
       )).to be_equal(true)
     end
   end
@@ -95,12 +95,12 @@ RSpec.describe Weaviate::Objects do
 
     it "returns the schema" do
       expect(objects.update(
-        class_name: 'Question',
-        id: 'd50ff869-5bd3-4680-b87d-09c37eea4437',
+        class_name: "Question",
+        id: "d50ff869-5bd3-4680-b87d-09c37eea4437",
         properties: {
-          question: 'What does 6 times 7 equal to?',
-          category: 'math',
-          answer: '42'
+          question: "What does 6 times 7 equal to?",
+          category: "math",
+          answer: "42"
         }
       )).to be_a(Weaviate::Response::Object)
     end
@@ -120,16 +120,16 @@ RSpec.describe Weaviate::Objects do
         {
           class_name: "Question",
           properties: {
-            answer: '42',
-            question: 'What is the meaning of life?',
-            category: 'philosophy'
+            answer: "42",
+            question: "What is the meaning of life?",
+            category: "philosophy"
           }
         }, {
           class_name: "Question",
           properties: {
-            answer: '42',
-            question: 'What does 6 times 7 equal to?',
-            category: 'math'
+            answer: "42",
+            question: "What does 6 times 7 equal to?",
+            category: "math"
           }
         }
       ])).to be_a(Weaviate::Response::Collection)
