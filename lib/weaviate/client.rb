@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'faraday'
+require "faraday"
 
 module Weaviate
   class Client
@@ -9,9 +9,9 @@ module Weaviate
     API_VERSION = "v1"
 
     API_KEY_HEADERS = {
-      openai: 'X-OpenAI-Api-Key',
-      cohere: 'X-Cohere-Api-Key',
-      huggingface: 'X-HuggingFace-Api-Key'
+      openai: "X-OpenAI-Api-Key",
+      cohere: "X-Cohere-Api-Key",
+      huggingface: "X-HuggingFace-Api-Key"
     }
 
     def initialize(
@@ -52,15 +52,15 @@ module Weaviate
         faraday.response :json, content_type: /\bjson$/
         faraday.adapter adapter
 
-        faraday.headers[API_KEY_HEADERS[model_service]] = model_service_api_key if (model_service && model_service_api_key)
+        faraday.headers[API_KEY_HEADERS[model_service]] = model_service_api_key if model_service && model_service_api_key
       end
     end
 
     private
 
     def validate_model_service!(model_service)
-      unless API_KEY_HEADERS.keys.include?(model_service)
-        raise ArgumentError, "Invalid model service: #{model_service}. Acceptable values are: #{API_KEY_HEADERS.keys.join(', ')}"
+      unless API_KEY_HEADERS.key?(model_service)
+        raise ArgumentError, "Invalid model service: #{model_service}. Acceptable values are: #{API_KEY_HEADERS.keys.join(", ")}"
       end
     end
   end

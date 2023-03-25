@@ -2,20 +2,20 @@
 
 module Weaviate
   class Schema < Base
-    PATH = 'schema'
+    PATH = "schema"
 
     # TESTED
     # Dumps the current Weaviate schema. The result contains an array of objects.
     def list
       response = client.connection.get(PATH)
-      Response::Collection.from_response(response, key: 'classes', type: Response::Class)
+      Response::Collection.from_response(response, key: "classes", type: Response::Class)
     end
 
     # TESTED
     # Get a single class from the schema
     def get(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}")
-      
+
       if status.success?
         Response::Class.new(response.body)
       end
@@ -36,15 +36,15 @@ module Weaviate
     )
       response = client.connection.post(PATH) do |req|
         req.body = {}
-        req.body['class'] = class_name                          unless class_name.nil?
-        req.body['description'] = description                   unless description.nil?
-        req.body['vectorIndexType'] = vector_index_type         unless vector_index_type.nil?
-        req.body['vectorIndexConfig'] = vector_index_config     unless vector_index_config.nil?
-        req.body['vectorizer'] = vectorizer                     unless vectorizer.nil?
-        req.body['moduleConfig'] = module_config                unless module_config.nil?
-        req.body['properties'] = properties                     unless properties.nil?
-        req.body['invertedIndexConfig'] = inverted_index_config unless inverted_index_config.nil?
-        req.body['replicationConfig'] = replication_config      unless replication_config.nil?
+        req.body["class"] = class_name unless class_name.nil?
+        req.body["description"] = description unless description.nil?
+        req.body["vectorIndexType"] = vector_index_type unless vector_index_type.nil?
+        req.body["vectorIndexConfig"] = vector_index_config unless vector_index_config.nil?
+        req.body["vectorizer"] = vectorizer unless vectorizer.nil?
+        req.body["moduleConfig"] = module_config unless module_config.nil?
+        req.body["properties"] = properties unless properties.nil?
+        req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
+        req.body["replicationConfig"] = replication_config unless replication_config.nil?
       end
 
       if response.success?
@@ -76,15 +76,15 @@ module Weaviate
     )
       response = client.connection.put("#{PATH}/#{class_name}") do |req|
         req.body = {}
-        req.body['class'] = class_name                          unless class_name.nil?
-        req.body['description'] = description                   unless description.nil?
-        req.body['vectorIndexType'] = vector_index_type         unless vector_index_type.nil?
-        req.body['vectorIndexConfig'] = vector_index_config     unless vector_index_config.nil?
-        req.body['vectorizer'] = vectorizer                     unless vectorizer.nil?
-        req.body['moduleConfig'] = module_config                unless module_config.nil?
-        req.body['properties'] = properties                     unless properties.nil?
-        req.body['invertedIndexConfig'] = inverted_index_config unless inverted_index_config.nil?
-        req.body['replicationConfig'] = replication_config      unless replication_config.nil?
+        req.body["class"] = class_name unless class_name.nil?
+        req.body["description"] = description unless description.nil?
+        req.body["vectorIndexType"] = vector_index_type unless vector_index_type.nil?
+        req.body["vectorIndexConfig"] = vector_index_config unless vector_index_config.nil?
+        req.body["vectorizer"] = vectorizer unless vectorizer.nil?
+        req.body["moduleConfig"] = module_config unless module_config.nil?
+        req.body["properties"] = properties unless properties.nil?
+        req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
+        req.body["replicationConfig"] = replication_config unless replication_config.nil?
       end
 
       if response.success?
@@ -105,7 +105,7 @@ module Weaviate
 
       client.connection.put("#{PATH}/#{class_name}/shards/#{shard_name}") do |req|
         req.body = {}
-        req.body['status'] = status
+        req.body["status"] = status
       end
     end
 

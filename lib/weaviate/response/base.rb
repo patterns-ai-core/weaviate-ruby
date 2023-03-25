@@ -17,7 +17,7 @@ module Weaviate
         else # Assumed to be a primitive value
           obj
         end
-      end  
+      end
     end
   end
 end

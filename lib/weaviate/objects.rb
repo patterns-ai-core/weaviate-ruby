@@ -2,7 +2,7 @@
 
 module Weaviate
   class Objects < Base
-    PATH = 'objects'
+    PATH = "objects"
 
     # TESTED
     # Lists all data objects in reverse order of creation. The data will be returned as an array of objects.
@@ -16,16 +16,16 @@ module Weaviate
       order: nil
     )
       response = client.connection.get(PATH) do |req|
-        req.params['class'] = class_name unless class_name.nil?
-        req.params['limit'] = limit unless limit.nil?
-        req.params['offset'] = offset unless offset.nil?
-        req.params['after'] = after unless after.nil?
-        req.params['include'] = include unless include.nil?
-        req.params['sort'] = sort unless sort.nil?
-        req.params['order'] = order unless order.nil?
+        req.params["class"] = class_name unless class_name.nil?
+        req.params["limit"] = limit unless limit.nil?
+        req.params["offset"] = offset unless offset.nil?
+        req.params["after"] = after unless after.nil?
+        req.params["include"] = include unless include.nil?
+        req.params["sort"] = sort unless sort.nil?
+        req.params["order"] = order unless order.nil?
       end
 
-      Response::Collection.from_response(response, key: 'objects', type: Response::Object)
+      Response::Collection.from_response(response, key: "objects", type: Response::Object)
     end
 
     # TESTED
@@ -38,16 +38,16 @@ module Weaviate
     )
       client.connection.post(PATH) do |req|
         req.body = {}
-        req.body['class'] = class_name
-        req.body['properties'] = properties
-        req.body['id'] = id unless id.nil?
-        req.body['vector'] = vector unless vector.nil?
+        req.body["class"] = class_name
+        req.body["properties"] = properties
+        req.body["id"] = id unless id.nil?
+        req.body["vector"] = vector unless vector.nil?
       end
     end
 
     def batch_create(objects:)
       client.connection.post("batch/#{PATH}") do |req|
-        req.body = { objects: objects }
+        req.body = {objects: objects}
       end
     end
 
@@ -62,7 +62,7 @@ module Weaviate
       # include	| query | param |	string |	Include additional information, such as classification info. Allowed values include: classification, vector.
 
       response = client.connection.get("#{PATH}/#{class_name}/#{id}") do |req|
-        req.params['include'] = include unless include.nil?
+        req.params["include"] = include unless include.nil?
       end
 
       if status.success?
@@ -87,13 +87,13 @@ module Weaviate
     )
       client.connection.put("#{PATH}/#{class_name}/#{id}") do |req|
         req.body = {}
-        req.body['id'] = id
-        req.body['class'] = class_name
-        req.body['properties'] = properties
-        req.body['vector'] = vector unless vector.nil?
+        req.body["id"] = id
+        req.body["class"] = class_name
+        req.body["properties"] = properties
+        req.body["vector"] = vector unless vector.nil?
       end
     end
-    
+
     # TESTED
     # Delete an individual data object from Weaviate.
     def delete(class_name:, id:)
