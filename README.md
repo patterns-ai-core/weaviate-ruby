@@ -1,8 +1,6 @@
 # Weaviate
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/weaviate`. To experiment with that code, run `bin/console` for an interactive prompt.
+Ruby wrapper for the Weaviate.io API
 
 ## Installation
 
@@ -23,7 +21,7 @@ client = Weaviate::Client.new(
     scheme: 'https',
     host: 'some-endpoint.weaviate.network',  # Replace with your endpoint
     model_service: :openai, # Service that will be used to generate vector. Allowed values: :openai, :cohere, :huggingface
-    model_service_api_key: ENV["MODEL_SERVICE_API_KEY"] # Either OpenAI, Co:here or Hugging Face API key
+    model_service_api_key: 'xxxxxxx' # Either OpenAI, Co:here or Hugging Face API key
 )
 ```
 
@@ -78,6 +76,57 @@ client.objects.create(
         category: 'philosophy'
     }
 )
+
+# Lists all data objects in reverse order of creation.
+client.objects.list()
+
+# Get a single data object.
+client.objects.get(
+    class_name: "Question",
+    id: ''
+)
+
+# Check if a data object exists
+client.objects.exists?(
+    class_name: "Question",
+    id: ''
+)
+
+# Delete an individual data object from Weaviate.
+client.objects.delete(
+    class_name: "Question",
+    id: ""
+)
+
+# Update an individual data object based on its uuid.
+client.objects.update(
+    class_name: "Question",
+    id: '',
+    properties: {
+        question: "What does 6 times 7 equal to?",
+        category: "math",
+        answer: "42"
+    }
+)
+
+# Batch create objects
+client.objects.batch_create(objects: [
+    {
+        class_name: "Question",
+        properties: {
+        answer: "42",
+        question: "What is the meaning of life?",
+        category: "philosophy"
+        }
+    }, {
+        class_name: "Question",
+        properties: {
+        answer: "42",
+        question: "What does 6 times 7 equal to?",
+        category: "math"
+        }
+    }
+])
 ```
 
 ## Development

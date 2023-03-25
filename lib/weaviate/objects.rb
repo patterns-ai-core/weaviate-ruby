@@ -45,6 +45,7 @@ module Weaviate
       end
     end
 
+    # Batch create objects
     def batch_create(objects:)
       response = client.connection.post("batch/#{PATH}") do |req|
         req.body = {objects: objects}
