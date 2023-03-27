@@ -23,7 +23,7 @@ module Weaviate
         req.params["sort"] = sort unless sort.nil?
         req.params["order"] = order unless order.nil?
       end
-      Response::Collection.from_response(response, key: "objects", type: Response::Object)
+      Response::Collection.from_response(response.body, key: "objects", type: Response::Object)
     end
 
     # Create a new data object. The provided meta-data and schema values are validated.
@@ -52,7 +52,7 @@ module Weaviate
       end
 
       if response.success?
-        Response::Collection.from_response(response, type: Response::Object)
+        Response::Collection.from_response(response.body, type: Response::Object)
       end
     end
 

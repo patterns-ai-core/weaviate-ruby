@@ -36,5 +36,6 @@ Gem::Specification.new do |spec|
   # guide at: https://bundler.io/guides/creating_gem.html
 
   spec.add_dependency "faraday", "~> 2.7"
+  spec.add_dependency "graphlient", "~> 0.7.0"
   spec.add_development_dependency "pry-byebug", "~> 3.9"
 end

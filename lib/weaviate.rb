@@ -10,6 +10,7 @@ module Weaviate
   autoload :Meta, "weaviate/meta"
   autoload :Objects, "weaviate/objects"
   autoload :OIDC, "weaviate/oidc"
+  autoload :Query, "weaviate/query"
 
   module Response
     autoload :Base, "weaviate/response/base"
