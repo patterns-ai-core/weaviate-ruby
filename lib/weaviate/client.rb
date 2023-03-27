@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "faraday"
+require "graphlient"
 
 module Weaviate
   class Client
@@ -45,6 +46,26 @@ module Weaviate
 
     def objects
       @objects ||= Weaviate::Objects.new(client: self)
+    end
+
+    def query
+      @query ||= Weaviate::Query.new(client: self)
+    end
+
+    def graphql
+      headers = {}
+      if model_service && model_service_api_key
+        headers[API_KEY_HEADERS[model_service]] = model_service_api_key
+      end
+
+      @graphql ||= Graphlient::Client.new(
+        "#{scheme}://#{host}/#{API_VERSION}/graphql",
+        headers: headers,
+        http_options: {
+          read_timeout: 20,
+          write_timeout: 30
+        }
+      )
     end
 
     def connection

@@ -7,7 +7,7 @@ module Weaviate
     # Dumps the current Weaviate schema. The result contains an array of objects.
     def list
       response = client.connection.get(PATH)
-      Response::Collection.from_response(response, key: "classes", type: Response::Class)
+      Response::Collection.from_response(response.body, key: "classes", type: Response::Class)
     end
 
     # Get a single class from the schema

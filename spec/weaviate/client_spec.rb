@@ -47,6 +47,12 @@ RSpec.describe Weaviate::Client do
     end
   end
 
+  describe "#query" do
+    it "returns a query client" do
+      expect(client.query).to be_a(Weaviate::Query)
+    end
+  end
+
   describe "#oidc" do
     let(:fixture) { JSON.parse(File.read("spec/fixtures/oidc.json")) }
     let(:response) { OpenStruct.new(body: fixture) }

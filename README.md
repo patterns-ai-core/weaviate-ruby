@@ -48,7 +48,9 @@ client.schema.create(
             "description": "The category",
             "name": "category"
         }
-    ]
+    ],
+    # Possible values: 'text2vec-cohere', 'text2vec-openai', 'text2vec-huggingface', 'text2vec-transformers', 'text2vec-contextionary', 'img2vec-neural', 'multi2vec-clip', 'ref2vec-centroid'
+    vectorizer: "text2vec-openai"
 )
 
 # Get a single class from the schema
@@ -132,6 +134,30 @@ response = client.objects.batch_create(objects: [
     }
 ])
 response.data
+```
+
+### Querying
+```ruby
+near_text = { "concepts": ["biology"] }
+
+client.query.get(
+    class_name: 'Question',
+    fields: ['question', 'answer', 'category'],
+    limit: 1,
+
+    # To use this parameter you must have created your schema by setting the `vectorizer:` property to
+    # either 'text2vec-transformers', 'text2vec-contextionary', 'text2vec-openai', 'multi2vec-clip', 'text2vec-huggingface' or 'text2vec-cohere'
+    near_text: near_text,
+
+    # To use this parameter you must have created your schema by setting the `vectorizer:` property to 'multi2vec-clip' or 'img2vec-neural'
+    # near_image: ...,
+
+    # hybrid: ...,
+
+    # bm25: ...,
+
+    # near_object: ...,
+)
 ```
 
 ## Development

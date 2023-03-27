@@ -5,8 +5,7 @@ module Weaviate
     class Collection
       attr_reader :data, :total_results
 
-      def self.from_response(response, type:, key: nil)
-        body = response.body
+      def self.from_response(body, type:, key: nil)
         new(
           data: (key.nil? ? body : body[key]).map { |attrs| type.new(attrs) }
           # TODO: Integrate and use the totalResults from the response.
