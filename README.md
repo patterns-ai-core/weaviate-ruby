@@ -139,11 +139,17 @@ response.data
 ### Querying
 ```ruby
 near_text = { "concepts": ["biology"] }
+sort_obj = { path: ["category"] } # Not supporting the `order:` param currently
+where_obj = { path: ["id"], operator: :equal, valueString: "..." }
 
 client.query.get(
     class_name: 'Question',
     fields: ['question', 'answer', 'category'],
     limit: 1,
+    offset: 1,
+    after: 'id',
+    sort: sort_obj,
+    where_obj: where_obj,
 
     # To use this parameter you must have created your schema by setting the `vectorizer:` property to
     # either 'text2vec-transformers', 'text2vec-contextionary', 'text2vec-openai', 'multi2vec-clip', 'text2vec-huggingface' or 'text2vec-cohere'
