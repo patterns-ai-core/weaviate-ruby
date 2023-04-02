@@ -137,17 +137,19 @@ response.data
 ```
 
 ### Querying
+
+#### Get
 ```ruby
-near_text = { "concepts": ["biology"] }
-sort_obj = { path: ["category"] } # Not supporting the `order:` param currently
-where_obj = { path: ["id"], operator: :equal, valueString: "..." }
+near_text = '{ concepts: ["biology"] }'
+sort_obj = '{ path: ["category"], order: desc }'
+where_obj = '{ path: ["id"], operator: Equal, valueString: "..." }'
 
 client.query.get(
     class_name: 'Question',
-    fields: ['question', 'answer', 'category'],
-    limit: 1,
-    offset: 1,
-    after: 'id',
+    fields: 'question answer category',
+    limit: "1",
+    offset: "1",
+    after: "id",
     sort: sort_obj,
     where_obj: where_obj,
 
@@ -163,6 +165,25 @@ client.query.get(
     # bm25: ...,
 
     # near_object: ...,
+)
+
+# Example queries:
+client.query.get class_name: 'Question', where: '{ operator: Like, valueText: "SCIENCE", path: ["category"] }', fields: 'answer question category', limit: "2"
+
+client.query.get class_name: 'Question', fields: 'answer question category _additional { id }', after: "3c5f7039-37f3-4244-b3e2-8f4a083e448d", limit: "1"
+
+
+
+```
+
+#### Aggs
+```ruby
+client.query.aggs(
+    class_name: "Question",
+    fields: 'meta { count }'
+    group_by: ["category"],
+    object_limit: "10",
+    near_text: "{ concepts: [\"knowledge\"] }"
 )
 ```
 

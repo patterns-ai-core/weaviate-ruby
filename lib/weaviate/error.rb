@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
 module Weaviate
-  class Error
+  class Error < StandardError
   end
 end
