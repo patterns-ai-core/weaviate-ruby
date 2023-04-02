@@ -54,7 +54,6 @@ module Weaviate
         object_limit: object_limit
       )
       response.data.aggregate.send(class_name.downcase)
-
     rescue Graphlient::Errors::ExecutionError => error
       raise Weaviate::Error.new(error.response.data.aggregate.errors.messages.to_h)
     end
@@ -81,11 +80,11 @@ module Weaviate
               after: $after,
               limit: $limit,
               offset: $offset,
-              #{near_text.present? ? "nearText: #{near_text}" : ''},
-              #{near_vector.present? ? "nearVector: #{near_vector}" : ''},
-              #{near_object.present? ? "nearObject: #{near_object}" : ''},
-              #{where.present? ? "where: #{where}" : ''},
-              #{sort.present? ? "sort: #{sort}" : ''}
+              #{near_text.present? ? "nearText: #{near_text}" : ""},
+              #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
+              #{near_object.present? ? "nearObject: #{near_object}" : ""},
+              #{where.present? ? "where: #{where}" : ""},
+              #{sort.present? ? "sort: #{sort}" : ""}
             ) {
               #{fields}
             }
@@ -110,15 +109,15 @@ module Weaviate
             #{class_name}(
               objectLimit: $object_limit,
               groupBy: $group_by,
-              #{near_text.present? ? "nearText: #{near_text}" : ''},
-              #{near_vector.present? ? "nearVector: #{near_vector}" : ''},
-              #{near_object.present? ? "nearObject: #{near_object}" : ''}
+              #{near_text.present? ? "nearText: #{near_text}" : ""},
+              #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
+              #{near_object.present? ? "nearObject: #{near_object}" : ""}
             ) {
               #{fields}
             }
           }
         }
       GRAPHQL
-    end    
+    end
   end
 end
