@@ -13,6 +13,7 @@ module Weaviate
   autoload :Query, "weaviate/query"
   autoload :Nodes, "weaviate/nodes"
   autoload :Health, "weaviate/health"
+  autoload :Classifications, "weaviate/classifications"
 
   module Response
     autoload :Base, "weaviate/response/base"

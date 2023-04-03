@@ -187,12 +187,26 @@ client.query.aggs(
 )
 ```
 
-#### Nodes
+### Classification
+```ruby
+client.classifications.create(
+    type: "zeroshot",
+    class_name: "Posts",
+    classify_properties: ["hasColor"],
+    based_on_properties: ["text"]
+)
+
+client.classifications.get(
+    id: ""
+)
+```
+
+### Nodes
 ```ruby
 client.nodes
 ```
 
-#### Health
+### Health
 ```ruby
 client.live?
 client.ready?

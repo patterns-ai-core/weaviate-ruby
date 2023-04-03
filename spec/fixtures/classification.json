@@ -1,0 +1,12 @@
+{
+  "basedOnProperties": ["text"],
+  "class": "Posts",
+  "classifyProperties": ["hasColor"],
+  "id": "1",
+  "meta": {
+    "completed": "0001-01-01T00:00:00.000Z",
+    "started": "2023-04-03T19:58:13.965Z"
+  },
+  "status": "running",
+  "type": "zeroshot"
+}
