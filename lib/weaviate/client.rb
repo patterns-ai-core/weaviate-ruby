@@ -59,6 +59,10 @@ module Weaviate
       @health.ready?
     end
 
+    def classifications
+      @classifications ||= Weaviate::Classifications.new(client: self)
+    end
+
     def objects
       @objects ||= Weaviate::Objects.new(client: self)
     end
