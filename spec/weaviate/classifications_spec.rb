@@ -9,7 +9,7 @@ RSpec.describe Weaviate::Classifications do
       host: "localhost:8080"
     )
   }
-  
+
   let(:classifications) { client.classifications }
   let(:classification_fixture) { JSON.parse(File.read("spec/fixtures/classification.json")) }
 
@@ -29,8 +29,8 @@ RSpec.describe Weaviate::Classifications do
         classify_properties: ["hasColor"],
         based_on_properties: ["text"]
       )
-      expect(response['type']).to eq('zeroshot')
-      expect(response['status']).to eq('running')
+      expect(response["type"]).to eq("zeroshot")
+      expect(response["status"]).to eq("running")
     end
   end
 
@@ -45,7 +45,7 @@ RSpec.describe Weaviate::Classifications do
 
     it "returns the classification" do
       response = classifications.get(id: "1")
-      expect(response['id']).to eq("1")
+      expect(response["id"]).to eq("1")
     end
   end
 end
