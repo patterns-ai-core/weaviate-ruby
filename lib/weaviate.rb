@@ -11,6 +11,8 @@ module Weaviate
   autoload :Objects, "weaviate/objects"
   autoload :OIDC, "weaviate/oidc"
   autoload :Query, "weaviate/query"
+  autoload :Nodes, "weaviate/nodes"
+  autoload :Health, "weaviate/health"
 
   module Response
     autoload :Base, "weaviate/response/base"

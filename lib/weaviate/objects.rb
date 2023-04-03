@@ -40,8 +40,11 @@ module Weaviate
         req.body["id"] = id unless id.nil?
         req.body["vector"] = vector unless vector.nil?
       end
+
       if response.success?
         Weaviate::Response::Object.new(response.body)
+      else
+        response.body
       end
     end
 
