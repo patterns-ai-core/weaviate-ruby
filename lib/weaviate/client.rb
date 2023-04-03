@@ -44,6 +44,21 @@ module Weaviate
       @meta.get
     end
 
+    def nodes
+      @nodes ||= Weaviate::Nodes.new(client: self)
+      @nodes.list
+    end
+
+    def live?
+      @health ||= Weaviate::Health.new(client: self)
+      @health.live?
+    end
+
+    def ready?
+      @health ||= Weaviate::Health.new(client: self)
+      @health.ready?
+    end
+
     def objects
       @objects ||= Weaviate::Objects.new(client: self)
     end

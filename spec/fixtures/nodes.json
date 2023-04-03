@@ -1,0 +1,21 @@
+{
+  "nodes": [
+    {
+      "gitHash": "00c9d31",
+      "name": "weaviate-0",
+      "shards": [
+        {
+          "class": "Question",
+          "name": "G1SJoaYlFnm4",
+          "objectCount": 10
+        }
+      ],
+      "stats": {
+        "objectCount": 10,
+        "shardCount": 1
+      },
+      "status": "HEALTHY",
+      "version": "1.18.1"
+    }
+  ]
+}
