@@ -1,0 +1,7 @@
+{
+  "backend": "filesystem",
+  "classes": ["Question"],
+  "id": "my-first-backup",
+  "path": "/var/lib/weaviate/backups/my-first-backup",
+  "status": "STARTED"
+}

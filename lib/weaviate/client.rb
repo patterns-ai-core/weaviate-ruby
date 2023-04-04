@@ -59,6 +59,10 @@ module Weaviate
       @health.ready?
     end
 
+    def backups
+      @backups ||= Weaviate::Backups.new(client: self)
+    end
+
     def classifications
       @classifications ||= Weaviate::Classifications.new(client: self)
     end

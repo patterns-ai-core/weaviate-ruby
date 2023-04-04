@@ -134,6 +134,16 @@ response = client.objects.batch_create(objects: [
     }
 ])
 response.data
+
+# Batch delete objects
+client.objects.batch_delete(
+    class_name: "Question",
+    where: {
+        valueString: "1",
+        operator: "Equal",
+        path: ["id"]
+    }
+)
 ```
 
 ### Querying
@@ -198,6 +208,30 @@ client.classifications.create(
 
 client.classifications.get(
     id: ""
+)
+```
+
+### Backups
+```ruby
+client.backups.create(
+    backend: "filesystem",
+    id: "my-first-backup",
+    include: ["Question"]
+)
+
+client.backups.get(
+    backend: "filesystem",
+    id: "my-first-backup"
+)
+
+client.backups.restore(
+    backend: "filesystem",
+    id: "my-first-backup"
+)
+
+client.backups.restore_status(
+    backend: "filesystem",
+    id: "my-first-backup"
 )
 ```
 

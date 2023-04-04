@@ -14,6 +14,7 @@ module Weaviate
   autoload :Nodes, "weaviate/nodes"
   autoload :Health, "weaviate/health"
   autoload :Classifications, "weaviate/classifications"
+  autoload :Backups, "weaviate/backups"
 
   module Response
     autoload :Base, "weaviate/response/base"
