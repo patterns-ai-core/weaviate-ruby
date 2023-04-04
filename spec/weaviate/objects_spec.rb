@@ -86,6 +86,29 @@ RSpec.describe Weaviate::Objects do
     end
   end
 
+  describe "#batch_delete" do
+    let(:batch_delete_fixture) { JSON.parse(File.read("spec/fixtures/batch_delete_object.json")) }
+    let(:response) { OpenStruct.new(success?: true, body: batch_delete_fixture) }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:delete)
+        .with("batch/objects")
+        .and_return(response)
+    end
+
+    it "returns the correct response" do
+      response = objects.batch_delete(
+        class_name: "Question",
+        where: {
+          valueString: "1",
+          operator: "Equal",
+          path: ["id"]
+        }
+      )
+      expect(response.dig("results", "successful")).to eq(1)
+    end
+  end
+
   describe "#update" do
     let(:response) { OpenStruct.new(success?: true, body: object_fixture) }
 

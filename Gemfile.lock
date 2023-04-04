@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    weaviate-ruby (0.4.0)
+    weaviate-ruby (0.5.0)
       faraday (~> 2.7)
       graphlient (~> 0.7.0)
 

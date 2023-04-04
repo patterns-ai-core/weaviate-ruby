@@ -108,6 +108,30 @@ module Weaviate
       response.success? && response.body.empty?
     end
 
+    def batch_delete(
+      class_name:,
+      where:,
+      consistency_level: nil,
+      output: nil,
+      dry_run: nil
+    )
+      path = "batch/#{PATH}"
+      path << "?consistency_level=#{consistency_level}" unless consistency_level.nil?
+
+      response = client.connection.delete(path) do |req|
+        req.body = {
+          match: {
+            class: class_name,
+            where: where
+          }
+        }
+        req.body["output"] = output unless output.nil?
+        req.body["dryRun"] = dry_run unless dry_run.nil?
+      end
+
+      response.body
+    end
+
     # Validate a data object
     # def validate
     # end
