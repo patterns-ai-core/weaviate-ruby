@@ -53,6 +53,46 @@ RSpec.describe Weaviate::Client do
     end
   end
 
+  describe "#ready?" do
+    let(:response) { OpenStruct.new(status: 200) }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:get)
+        .with(".well-known/ready")
+        .and_return(response)
+    end
+
+    it "returns a query client" do
+      expect(client.ready?).to eq(true)
+    end
+  end
+
+  describe "#live?" do
+    let(:response) { OpenStruct.new(status: 200) }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:get)
+        .with(".well-known/live")
+        .and_return(response)
+    end
+
+    it "returns a query client" do
+      expect(client.live?).to eq(true)
+    end
+  end
+
+  describe "#classifications" do
+    it "returns a classifications client" do
+      expect(client.classifications).to be_a(Weaviate::Classifications)
+    end
+  end
+
+  describe "#backups" do
+    it "returns a backups client" do
+      expect(client.backups).to be_a(Weaviate::Backups)
+    end
+  end
+
   describe "#oidc" do
     let(:fixture) { JSON.parse(File.read("spec/fixtures/oidc.json")) }
     let(:response) { OpenStruct.new(body: fixture) }

@@ -5,7 +5,7 @@ require "graphlient"
 
 module Weaviate
   class Client
-    attr_reader :scheme, :host, :model_service, :model_service_api_key, :adapter
+    attr_reader :scheme, :host, :api_key, :model_service, :model_service_api_key, :adapter
 
     API_VERSION = "v1"
 
@@ -18,6 +18,7 @@ module Weaviate
     def initialize(
       scheme:,
       host:,
+      api_key: nil,
       model_service: nil,
       model_service_api_key: nil,
       adapter: Faraday.default_adapter
@@ -26,6 +27,7 @@ module Weaviate
 
       @scheme = scheme
       @host = host
+      @api_key = api_key
       @model_service = model_service
       @model_service_api_key = model_service_api_key
       @adapter = adapter
@@ -93,6 +95,9 @@ module Weaviate
 
     def connection
       @connection ||= Faraday.new(url: "#{scheme}://#{host}/#{API_VERSION}/") do |faraday|
+        if api_key
+          faraday.request :authorization, :Bearer, api_key
+        end
         faraday.request :json
         faraday.response :json, content_type: /\bjson$/
         faraday.adapter adapter
