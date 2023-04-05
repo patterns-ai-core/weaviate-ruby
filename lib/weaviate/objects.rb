@@ -23,12 +23,8 @@ module Weaviate
         req.params["sort"] = sort unless sort.nil?
         req.params["order"] = order unless order.nil?
       end
-      
-      if response.success?
-        response.body
-      else
-        response.body
-      end
+
+      response.body
     end
 
     # Create a new data object. The provided meta-data and schema values are validated.
@@ -42,9 +38,11 @@ module Weaviate
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
       response = client.connection.post(PATH) do |req|
-        req.params = {
-          consistency_level: consistency_level.to_s.upcase
-        } unless consistency_level.nil?
+        unless consistency_level.nil?
+          req.params = {
+            consistency_level: consistency_level.to_s.upcase
+          }
+        end
 
         req.body = {}
         req.body["class"] = class_name
@@ -53,11 +51,7 @@ module Weaviate
         req.body["vector"] = vector unless vector.nil?
       end
 
-      if response.success?
-        response.body
-      else
-        response.body
-      end
+      response.body
     end
 
     # Batch create objects
@@ -72,11 +66,7 @@ module Weaviate
         req.body = {objects: objects}
       end
 
-      if response.success?
-        response.body
-      else
-        response.body
-      end
+      response.body
     end
 
     # Get a single data object.
@@ -93,11 +83,7 @@ module Weaviate
         req.params["include"] = include unless include.nil?
       end
 
-      if response.success?
-        response.body
-      else
-        response.body
-      end
+      response.body
     end
 
     # Check if a data object exists
@@ -134,12 +120,8 @@ module Weaviate
         req.body["properties"] = properties
         req.body["vector"] = vector unless vector.nil?
       end
-      
-      if response.success?
-        response.body
-      else
-        response.body
-      end
+
+      response.body
     end
 
     # Delete an individual data object from Weaviate.
@@ -169,7 +151,7 @@ module Weaviate
       dry_run: nil
     )
       path = "batch/#{PATH}"
-      
+
       unless consistency_level.nil?
         validate_consistency_level!(consistency_level)
 

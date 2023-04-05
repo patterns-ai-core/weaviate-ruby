@@ -26,7 +26,7 @@ RSpec.describe Weaviate::Schema do
     end
 
     it "returns schemas" do
-      expect(schema.list.dig('classes').count).to eq(1)
+      expect(schema.list.dig("classes").count).to eq(1)
     end
   end
 
@@ -41,7 +41,7 @@ RSpec.describe Weaviate::Schema do
 
     it "returns the schema" do
       response = schema.get(class_name: "Question")
-      expect(response.dig('class')).to eq('Question')
+      expect(response.dig("class")).to eq("Question")
     end
   end
 
@@ -74,7 +74,7 @@ RSpec.describe Weaviate::Schema do
           }
         ]
       )
-      expect(response.dig('class')).to eq('Question')
+      expect(response.dig("class")).to eq("Question")
     end
   end
 
@@ -108,15 +108,12 @@ RSpec.describe Weaviate::Schema do
         class_name: "Question",
         description: "Information from a Wheel of Fortune question"
       )
-      expect(response.dig('class')).to eq('Question')
+      expect(response.dig("class")).to eq("Question")
     end
   end
 
   xdescribe "#add_property" do
-
-    
   end
-
 
   describe "#shards" do
     let(:response) { OpenStruct.new(success?: true, body: shard_fixture) }

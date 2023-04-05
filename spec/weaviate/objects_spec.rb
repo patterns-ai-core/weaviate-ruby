@@ -33,7 +33,7 @@ RSpec.describe Weaviate::Objects do
           category: "philosophy"
         }
       )
-      expect(response.dig('class')).to eq('Question')
+      expect(response.dig("class")).to eq("Question")
     end
   end
 
@@ -53,7 +53,7 @@ RSpec.describe Weaviate::Objects do
   end
 
   describe "#exists?" do
-    let(:response) { OpenStruct.new(success?: true, status: 204, body: '') }
+    let(:response) { OpenStruct.new(success?: true, status: 204, body: "") }
 
     before do
       allow_any_instance_of(Faraday::Connection).to receive(:head)
@@ -84,7 +84,7 @@ RSpec.describe Weaviate::Objects do
         class_name: "Question",
         id: "123"
       )
-      expect(response.dig('class')).to eq('Question')
+      expect(response.dig("class")).to eq("Question")
     end
   end
 
@@ -147,7 +147,7 @@ RSpec.describe Weaviate::Objects do
           answer: "42"
         }
       )
-      expect(response.dig('class')).to eq('Question')
+      expect(response.dig("class")).to eq("Question")
     end
   end
 

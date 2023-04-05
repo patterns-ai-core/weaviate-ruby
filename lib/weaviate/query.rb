@@ -28,7 +28,7 @@ module Weaviate
         limit: limit,
         offset: offset
       )
-      response.original_hash.dig('data', 'Get', class_name)
+      response.original_hash.dig("data", "Get", class_name)
     rescue Graphlient::Errors::ExecutionError => error
       raise Weaviate::Error.new(error.response.data.get.errors.messages.to_h)
     end
@@ -53,7 +53,7 @@ module Weaviate
         group_by: group_by,
         object_limit: object_limit
       )
-      response.original_hash.dig('data', 'Aggregate', class_name)
+      response.original_hash.dig("data", "Aggregate", class_name)
     rescue Graphlient::Errors::ExecutionError => error
       raise Weaviate::Error.new(error.response.data.aggregate.errors.messages.to_h)
     end
@@ -80,7 +80,7 @@ module Weaviate
         limit: limit,
         offset: offset
       )
-      response.original_hash.dig('data', 'Explore')
+      response.original_hash.dig("data", "Explore")
     rescue Graphlient::Errors::ExecutionError => error
       raise Weaviate::Error.new(error.to_s)
     end

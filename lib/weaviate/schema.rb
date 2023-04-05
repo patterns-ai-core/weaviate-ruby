@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry'
-
 module Weaviate
   class Schema < Base
     PATH = "schema"
@@ -49,16 +47,14 @@ module Weaviate
       end
 
       if response.success?
-        response.body
-      else
-        response.body
       end
+      response.body
     end
 
     # Remove a class (and all data in the instances) from the schema.
     def delete(class_name:)
       response = client.connection.delete("#{PATH}/#{class_name}")
-      
+
       if response.success?
         response.body.empty?
       else
@@ -95,10 +91,8 @@ module Weaviate
       end
 
       if response.success?
-        response.body
-      else
-        response.body
       end
+      response.body
     end
 
     # Add a property to an existing schema class.
@@ -111,10 +105,8 @@ module Weaviate
       end
 
       if response.success?
-        response.body
-      else
-        response.body
       end
+      response.body
     end
 
     # Inspect the shards of a class
