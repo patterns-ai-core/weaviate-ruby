@@ -105,4 +105,48 @@ RSpec.describe Weaviate::Query do
       expect(data.first.question).to eq("In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance")
     end
   end
+
+  describe "#explore" do
+    let(:response) {
+      double(
+        data: double(
+          explore: [double(certainty: "0.9999", class_name: "Question")]
+        )
+      )
+    }
+
+    let(:graphql_query) {
+      <<-GRAPHQL
+        query {
+          Explore(
+            limit: 1
+            nearText: { concepts: ["biology"] }
+          ) {
+            certainty
+            className
+          }
+        }
+      GRAPHQL
+    }
+
+    before do
+      allow_any_instance_of(Graphlient::Client).to receive(:parse)
+        .and_return(graphql_query)
+
+      allow_any_instance_of(Graphlient::Client).to receive(:execute)
+        .and_return(response)
+    end
+
+    it "returns the query" do
+      response = query.explore(
+        fields: "certainty className",
+        near_text: "{ concepts: [\"biology\"] }",
+        limit: "1"
+      )
+
+      expect(response.count).to eq(1)
+      expect(response.first.certainty).to eq("0.9999")
+      expect(response.first.class_name).to eq("Question")
+    end
+  end
 end

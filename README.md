@@ -198,6 +198,15 @@ client.query.aggs(
 )
 ```
 
+#### Explore
+```ruby
+client.query.explore(
+    fields: 'className',
+    near_text: "{ concepts: [\"science\"] }",
+    limit: "1"
+)
+```
+
 ### Classification
 ```ruby
 client.classifications.create(
