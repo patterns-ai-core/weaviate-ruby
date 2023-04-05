@@ -25,14 +25,15 @@ RSpec.describe Weaviate::Objects do
     end
 
     it "creates an object" do
-      expect(objects.create(
+      response = objects.create(
         class_name: "Question",
         properties: {
           answer: "42",
           question: "What is the meaning of life?",
           category: "philosophy"
         }
-      )).to be_a(Weaviate::Response::Object)
+      )
+      expect(response.dig('class')).to eq('Question')
     end
   end
 
@@ -47,8 +48,25 @@ RSpec.describe Weaviate::Objects do
 
     it "returns objects" do
       response = objects.list
-      expect(response).to be_a(Weaviate::Response::Collection)
-      # expect(response.total_results).to eq(1)
+      expect(response.count).to eq(1)
+    end
+  end
+
+  describe "#exists?" do
+    let(:response) { OpenStruct.new(success?: true, status: 204, body: '') }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:head)
+        .with("objects/Question/123")
+        .and_return(response)
+    end
+
+    it "gets an object" do
+      response = objects.exists?(
+        class_name: "Question",
+        id: "123"
+      )
+      expect(response).to eq(true)
     end
   end
 
@@ -62,10 +80,11 @@ RSpec.describe Weaviate::Objects do
     end
 
     it "gets an object" do
-      expect(objects.get(
+      response = objects.get(
         class_name: "Question",
         id: "123"
-      )).to be_a(Weaviate::Response::Object)
+      )
+      expect(response.dig('class')).to eq('Question')
     end
   end
 
@@ -119,7 +138,7 @@ RSpec.describe Weaviate::Objects do
     end
 
     it "returns the schema" do
-      expect(objects.update(
+      response = objects.update(
         class_name: "Question",
         id: "123",
         properties: {
@@ -127,7 +146,8 @@ RSpec.describe Weaviate::Objects do
           category: "math",
           answer: "42"
         }
-      )).to be_a(Weaviate::Response::Object)
+      )
+      expect(response.dig('class')).to eq('Question')
     end
   end
 
@@ -141,7 +161,7 @@ RSpec.describe Weaviate::Objects do
     end
 
     it "batch creates objects" do
-      expect(objects.batch_create(objects: [
+      response = objects.batch_create(objects: [
         {
           class_name: "Question",
           properties: {
@@ -157,7 +177,8 @@ RSpec.describe Weaviate::Objects do
             category: "math"
           }
         }
-      ])).to be_a(Weaviate::Response::Collection)
+      ])
+      expect(response.count).to eq(2)
     end
   end
 end
