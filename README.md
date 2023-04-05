@@ -2,6 +2,8 @@
 
 Ruby wrapper for the Weaviate.io API
 
+![Tests status](https://github.com/andreibondarev/weaviate-ruby/actions/workflows/ci.yml/badge.svg)
+
 ## Installation
 
 Install the gem and add to the application's Gemfile by executing:
