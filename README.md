@@ -1,5 +1,11 @@
 # Weaviate
 
+<p>
+    <img alt='Weaviate logo' src='https://weaviate.io/img/site/weaviate-logo-light.png' height='50' />
+    +&nbsp;&nbsp;
+    <img alt='Weaviate logo' src='https://user-images.githubusercontent.com/541665/230231593-43861278-4550-421d-a543-fd3553aac4f6.png' height='40' />
+</p>
+
 Ruby wrapper for the Weaviate.io API
 
 ![Tests status](https://github.com/andreibondarev/weaviate-ruby/actions/workflows/ci.yml/badge.svg)
