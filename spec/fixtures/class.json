@@ -1,7 +1,7 @@
 {
   "class": "Question",
   "description": "Information from a Jeopardy! question",
- "properties": [
+  "properties": [
     {
       "dataType": ["text"],
       "description": "The question",

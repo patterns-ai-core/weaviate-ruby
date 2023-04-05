@@ -26,7 +26,7 @@ RSpec.describe Weaviate::Schema do
     end
 
     it "returns schemas" do
-      expect(schema.list).to be_a(Weaviate::Response::Collection)
+      expect(schema.list.dig("classes").count).to eq(1)
     end
   end
 
@@ -40,7 +40,8 @@ RSpec.describe Weaviate::Schema do
     end
 
     it "returns the schema" do
-      expect(schema.get(class_name: "Question")).to be_a(Weaviate::Response::Class)
+      response = schema.get(class_name: "Question")
+      expect(response.dig("class")).to eq("Question")
     end
   end
 
@@ -54,7 +55,7 @@ RSpec.describe Weaviate::Schema do
     end
 
     it "returns the schema" do
-      expect(schema.create(
+      response = schema.create(
         class_name: "Question",
         description: "Information from a Jeopardy! question",
         properties: [
@@ -72,7 +73,8 @@ RSpec.describe Weaviate::Schema do
             name: "category"
           }
         ]
-      )).to be_a(Weaviate::Response::Class)
+      )
+      expect(response.dig("class")).to eq("Question")
     end
   end
 
@@ -102,11 +104,15 @@ RSpec.describe Weaviate::Schema do
     end
 
     it "returns the schema" do
-      expect(schema.update(
+      response = schema.update(
         class_name: "Question",
         description: "Information from a Wheel of Fortune question"
-      )).to be_a(Weaviate::Response::Class)
+      )
+      expect(response.dig("class")).to eq("Question")
     end
+  end
+
+  xdescribe "#add_property" do
   end
 
   describe "#shards" do

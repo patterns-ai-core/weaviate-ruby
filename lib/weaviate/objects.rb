@@ -23,17 +23,27 @@ module Weaviate
         req.params["sort"] = sort unless sort.nil?
         req.params["order"] = order unless order.nil?
       end
-      Response::Collection.from_response(response.body, key: "objects", type: Response::Object)
+
+      response.body
     end
 
     # Create a new data object. The provided meta-data and schema values are validated.
     def create(
       class_name:,
       properties:,
+      consistency_level: nil,
       id: nil,
       vector: nil
     )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
       response = client.connection.post(PATH) do |req|
+        unless consistency_level.nil?
+          req.params = {
+            consistency_level: consistency_level.to_s.upcase
+          }
+        end
+
         req.body = {}
         req.body["class"] = class_name
         req.body["properties"] = properties
@@ -41,45 +51,53 @@ module Weaviate
         req.body["vector"] = vector unless vector.nil?
       end
 
-      if response.success?
-        Weaviate::Response::Object.new(response.body)
-      else
-        response.body
-      end
+      response.body
     end
 
     # Batch create objects
-    def batch_create(objects:)
+    def batch_create(
+      objects:,
+      consistency_level: nil
+    )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
       response = client.connection.post("batch/#{PATH}") do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
         req.body = {objects: objects}
       end
 
-      if response.success?
-        Response::Collection.from_response(response.body, type: Response::Object)
-      end
+      response.body
     end
 
     # Get a single data object.
     def get(
       class_name:,
       id:,
-      include: nil
+      include: nil,
+      consistency_level: nil
     )
-      # TODO: validate `include` param values
-      # include	| query | param |	string |	Include additional information, such as classification info. Allowed values include: classification, vector.
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
       response = client.connection.get("#{PATH}/#{class_name}/#{id}") do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
         req.params["include"] = include unless include.nil?
       end
 
-      if response.success?
-        Weaviate::Response::Object.new(response.body)
-      end
+      response.body
     end
 
     # Check if a data object exists
-    def exists?(class_name:, id:)
-      response = client.connection.head("#{PATH}/#{class_name}/#{id}")
+    def exists?(
+      class_name:,
+      id:,
+      consistency_level: nil
+    )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
+      response = client.connection.head("#{PATH}/#{class_name}/#{id}") do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+      end
+
       response.status == 204
     end
 
@@ -88,24 +106,41 @@ module Weaviate
       class_name:,
       id:,
       properties:,
-      vector: nil
+      vector: nil,
+      consistency_level: nil
     )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
       response = client.connection.put("#{PATH}/#{class_name}/#{id}") do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+
         req.body = {}
         req.body["id"] = id
         req.body["class"] = class_name
         req.body["properties"] = properties
         req.body["vector"] = vector unless vector.nil?
       end
-      if response.success?
-        Weaviate::Response::Object.new(response.body)
-      end
+
+      response.body
     end
 
     # Delete an individual data object from Weaviate.
-    def delete(class_name:, id:)
-      response = client.connection.delete("#{PATH}/#{class_name}/#{id}")
-      response.success? && response.body.empty?
+    def delete(
+      class_name:,
+      id:,
+      consistency_level: nil
+    )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
+      response = client.connection.delete("#{PATH}/#{class_name}/#{id}") do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+      end
+
+      if response.success?
+        response.body.empty?
+      else
+        response.body
+      end
     end
 
     def batch_delete(
@@ -116,7 +151,12 @@ module Weaviate
       dry_run: nil
     )
       path = "batch/#{PATH}"
-      path << "?consistency_level=#{consistency_level}" unless consistency_level.nil?
+
+      unless consistency_level.nil?
+        validate_consistency_level!(consistency_level)
+
+        path << "?consistency_level=#{consistency_level.to_s.upcase}"
+      end
 
       response = client.connection.delete(path) do |req|
         req.body = {
@@ -133,7 +173,31 @@ module Weaviate
     end
 
     # Validate a data object
-    # def validate
-    # end
+    def validate(
+      class_name:,
+      properties:,
+      id: nil
+    )
+      response = client.connection.post("#{PATH}/validate") do |req|
+        req.body = {}
+        req.body["class"] = class_name
+        req.body["properties"] = properties
+        req.body["id"] = id unless id.nil?
+      end
+
+      if response.success?
+        response.body.empty?
+      else
+        response.body
+      end
+    end
+
+    private
+
+    def validate_consistency_level!(consistency_level)
+      unless %w[ONE QUORUM ALL].include?(consistency_level.to_s.upcase)
+        raise ArgumentError, 'consistency_level must be either "ONE" or "QUORUM" OR "ALL"'
+      end
+    end
   end
 end

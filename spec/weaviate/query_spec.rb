@@ -16,13 +16,18 @@ RSpec.describe Weaviate::Query do
 
   describe "#get" do
     let(:response) {
-      double(
-        data: double(
-          get: double(
-            question: [double(category: "SCIENCE", question: "In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance")]
-          )
-        )
-      )
+      double(original_hash: {
+        "data" => {
+          "Get" => {
+            "Question" => [
+              {
+                "category" => "SCIENCE",
+                "question" => "In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance"
+              }
+            ]
+          }
+        }
+      })
     }
 
     let(:graphql_query) {
@@ -55,20 +60,25 @@ RSpec.describe Weaviate::Query do
       )
 
       expect(data.count).to eq(1)
-      expect(data.first.category).to eq("SCIENCE")
-      expect(data.first.question).to eq("In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance")
+      expect(data.first["category"]).to eq("SCIENCE")
+      expect(data.first["question"]).to eq("In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance")
     end
   end
 
   describe "#aggs" do
     let(:response) {
-      double(
-        data: double(
-          aggregate: double(
-            question: [double(category: "SCIENCE", question: "In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance")]
-          )
-        )
-      )
+      double(original_hash: {
+        "data" => {
+          "Aggregate" => {
+            "Question" => [
+              {
+                "category" => "SCIENCE",
+                "question" => "In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance"
+              }
+            ]
+          }
+        }
+      })
     }
 
     let(:graphql_query) {
@@ -101,18 +111,18 @@ RSpec.describe Weaviate::Query do
       )
 
       expect(data.count).to eq(1)
-      expect(data.first.category).to eq("SCIENCE")
-      expect(data.first.question).to eq("In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance")
+      expect(data.first["category"]).to eq("SCIENCE")
+      expect(data.first["question"]).to eq("In 1953 Watson & Crick built a model of the molecular structure of this, the gene-carrying substance")
     end
   end
 
   describe "#explore" do
     let(:response) {
-      double(
-        data: double(
-          explore: [double(certainty: "0.9999", class_name: "Question")]
-        )
-      )
+      double(original_hash: {
+        "data" => {
+          "Explore" => [{"certainty" => "0.9999", "class_name" => "Question"}]
+        }
+      })
     }
 
     let(:graphql_query) {
@@ -145,8 +155,8 @@ RSpec.describe Weaviate::Query do
       )
 
       expect(response.count).to eq(1)
-      expect(response.first.certainty).to eq("0.9999")
-      expect(response.first.class_name).to eq("Question")
+      expect(response.first["certainty"]).to eq("0.9999")
+      expect(response.first["class_name"]).to eq("Question")
     end
   end
 end

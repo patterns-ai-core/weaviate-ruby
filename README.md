@@ -67,7 +67,17 @@ response.data
 client.schema.delete(class_name: 'Question')
 
 # Update settings of an existing schema class.
+# Does not support modifying existing properties.
 client.schema.update(class_name: 'Question')
+
+# Adding a new property
+client.schema.add_property(
+    class_name: 'Question',
+    property: {
+        "dataType": ["boolean"],
+        "name": "homepage"
+    }
+)
 
 # Inspect the shards of a class
 client.schema.shards(class_name: 'Question')
@@ -119,7 +129,7 @@ client.objects.update(
 )
 
 # Batch create objects
-response = client.objects.batch_create(objects: [
+client.objects.batch_create(objects: [
     {
         class: "Question",
         properties: {
@@ -136,7 +146,6 @@ response = client.objects.batch_create(objects: [
         }
     }
 ])
-response.data
 
 # Batch delete objects
 client.objects.batch_delete(
@@ -193,7 +202,7 @@ client.query.get class_name: 'Question', fields: 'answer question category _addi
 ```ruby
 client.query.aggs(
     class_name: "Question",
-    fields: 'meta { count }'
+    fields: 'meta { count }',
     group_by: ["category"],
     object_limit: "10",
     near_text: "{ concepts: [\"knowledge\"] }"

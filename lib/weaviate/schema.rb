@@ -7,7 +7,7 @@ module Weaviate
     # Dumps the current Weaviate schema. The result contains an array of objects.
     def list
       response = client.connection.get(PATH)
-      Response::Collection.from_response(response.body, key: "classes", type: Response::Class)
+      response.body
     end
 
     # Get a single class from the schema
@@ -15,15 +15,17 @@ module Weaviate
       response = client.connection.get("#{PATH}/#{class_name}")
 
       if response.success?
-        Response::Class.new(response.body)
+        response.body
+      elsif response.status == 404
+        response.reason_phrase
       end
     end
 
     # Create a new data object class in the schema.
     def create(
       class_name:,
-      description:,
-      properties:,
+      description: nil,
+      properties: nil,
       vector_index_type: nil,
       vector_index_config: nil,
       vectorizer: nil,
@@ -33,7 +35,7 @@ module Weaviate
     )
       response = client.connection.post(PATH) do |req|
         req.body = {}
-        req.body["class"] = class_name unless class_name.nil?
+        req.body["class"] = class_name
         req.body["description"] = description unless description.nil?
         req.body["vectorIndexType"] = vector_index_type unless vector_index_type.nil?
         req.body["vectorIndexConfig"] = vector_index_config unless vector_index_config.nil?
@@ -45,19 +47,25 @@ module Weaviate
       end
 
       if response.success?
-        Response::Class.new(response.body)
-      else
-        response.body
       end
+      response.body
     end
 
     # Remove a class (and all data in the instances) from the schema.
     def delete(class_name:)
       response = client.connection.delete("#{PATH}/#{class_name}")
-      response.success? && response.body.empty?
+
+      if response.success?
+        response.body.empty?
+      else
+        response.body
+      end
     end
 
     # Update settings of an existing schema class.
+    # TODO: Fix it.
+    # This endpoint keeps returning the following error:
+    # => {"error"=>[{"message"=>"properties cannot be updated through updating the class. Use the add property feature (e.g. \"POST /v1/schema/{className}/properties\") to add additional properties"}]}
     def update(
       class_name:,
       description: nil,
@@ -83,10 +91,22 @@ module Weaviate
       end
 
       if response.success?
-        Response::Class.new(response.body)
-      else
-        response.body
       end
+      response.body
+    end
+
+    # Add a property to an existing schema class.
+    def add_property(
+      class_name:,
+      property:
+    )
+      response = client.connection.post("#{PATH}/#{class_name}/properties") do |req|
+        req.body = property
+      end
+
+      if response.success?
+      end
+      response.body
     end
 
     # Inspect the shards of a class
