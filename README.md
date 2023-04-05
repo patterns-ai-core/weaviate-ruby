@@ -167,7 +167,7 @@ client.objects.batch_delete(
 
 ### Querying
 
-#### Get
+#### Get{}
 ```ruby
 near_text = '{ concepts: ["biology"] }'
 sort_obj = '{ path: ["category"], order: desc }'
@@ -205,7 +205,7 @@ client.query.get class_name: 'Question', fields: 'answer question category _addi
 
 ```
 
-#### Aggs
+#### Aggs{}
 ```ruby
 client.query.aggs(
     class_name: "Question",
@@ -216,7 +216,7 @@ client.query.aggs(
 )
 ```
 
-#### Explore
+#### Explore{}
 ```ruby
 client.query.explore(
     fields: 'className',
@@ -227,6 +227,7 @@ client.query.explore(
 
 ### Classification
 ```ruby
+# Start a classification
 client.classifications.create(
     type: "zeroshot",
     class_name: "Posts",
@@ -234,6 +235,7 @@ client.classifications.create(
     based_on_properties: ["text"]
 )
 
+# Get the status, results and metadata of a previously created classification
 client.classifications.get(
     id: ""
 )
@@ -241,22 +243,26 @@ client.classifications.get(
 
 ### Backups
 ```ruby
+# Create backup
 client.backups.create(
     backend: "filesystem",
     id: "my-first-backup",
     include: ["Question"]
 )
 
+# Get the backup
 client.backups.get(
     backend: "filesystem",
     id: "my-first-backup"
 )
 
+# Restore backup
 client.backups.restore(
     backend: "filesystem",
     id: "my-first-backup"
 )
 
+# Check the backup restore status
 client.backups.restore_status(
     backend: "filesystem",
     id: "my-first-backup"
@@ -270,7 +276,12 @@ client.nodes
 
 ### Health
 ```ruby
+# Live determines whether the application is alive. It can be used for Kubernetes liveness probe.
 client.live?
+```
+
+```ruby
+# Live determines whether the application is ready to receive traffic. It can be used for Kubernetes readiness probe.
 client.ready?
 ```
 
