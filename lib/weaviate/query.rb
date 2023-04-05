@@ -58,7 +58,62 @@ module Weaviate
       raise Weaviate::Error.new(error.response.data.aggregate.errors.messages.to_h)
     end
 
+    def explore(
+      fields:,
+      after: nil,
+      limit: nil,
+      offset: nil,
+      sort: nil,
+      where: nil,
+      near_text: nil,
+      near_vector: nil,
+      near_object: nil
+    )
+      response = client.graphql.execute(
+        explore_query(
+          fields: fields,
+          near_text: near_text,
+          near_vector: near_vector,
+          near_object: near_object
+        ),
+        after: after,
+        limit: limit,
+        offset: offset
+      )
+      response.data.explore
+    rescue Graphlient::Errors::ExecutionError => error
+      raise Weaviate::Error.new(error.to_s)
+    end
+
     private
+
+    def explore_query(
+      fields:,
+      where: nil,
+      near_text: nil,
+      near_vector: nil,
+      near_object: nil,
+      sort: nil
+    )
+      client.graphql.parse <<~GRAPHQL
+        query(
+          $limit: Int,
+          $offset: Int
+        ) {
+          Explore (
+            limit: $limit,
+            offset: $offset,
+            #{near_text.present? ? "nearText: #{near_text}" : ""},
+            #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
+            #{near_object.present? ? "nearObject: #{near_object}" : ""}
+            #{where.present? ? "where: #{where}" : ""},
+            #{sort.present? ? "sort: #{sort}" : ""}
+          ) {
+            #{fields}
+          }
+        }
+      GRAPHQL
+    end
 
     def get_query(
       class_name:,
