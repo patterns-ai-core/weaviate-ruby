@@ -22,7 +22,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
-### Instantiating the API client
+### Instantiating API client
 
 ```ruby
 require 'weaviate'
@@ -48,7 +48,7 @@ client.schema.create(
             "dataType": ["text"],
             "description": "The question",
             "name": "question"
-        } ,{ 
+        }, { 
             "dataType": ["text"],
             "description": "The answer",
             "name": "answer"
@@ -65,16 +65,18 @@ client.schema.create(
 # Get a single class from the schema
 client.schema.get(class_name: 'Question')
 
-# Dumps the current Weaviate schema. 
-response = client.schema.list()
-response.data
+# Get the schema
+client.schema.list()
 
 # Remove a class (and all data in the instances) from the schema.
 client.schema.delete(class_name: 'Question')
 
 # Update settings of an existing schema class.
 # Does not support modifying existing properties.
-client.schema.update(class_name: 'Question')
+client.schema.update(
+    class_name: 'Question',
+    description: 'Information from a Wheel of Fortune question'
+)
 
 # Adding a new property
 client.schema.add_property(
@@ -102,31 +104,30 @@ client.objects.create(
 )
 
 # Lists all data objects in reverse order of creation.
-response = client.objects.list()
-response.data
+client.objects.list()
 
 # Get a single data object.
 client.objects.get(
     class_name: "Question",
-    id: ''
+    id: "uuid"
 )
 
-# Check if a data object exists
+# Check if a data object exists.
 client.objects.exists?(
     class_name: "Question",
-    id: ''
+    id: "uuid"
 )
 
-# Delete an individual data object from Weaviate.
+# Delete a single data object from Weaviate.
 client.objects.delete(
     class_name: "Question",
-    id: ""
+    id: "uuid"
 )
 
-# Update an individual data object based on its uuid.
+# Update a single data object based on its uuid.
 client.objects.update(
     class_name: "Question",
-    id: '',
+    id: "uuid",
     properties: {
         question: "What does 6 times 7 equal to?",
         category: "math",
@@ -157,7 +158,7 @@ client.objects.batch_create(objects: [
 client.objects.batch_delete(
     class_name: "Question",
     where: {
-        valueString: "1",
+        valueString: "uuid",
         operator: "Equal",
         path: ["id"]
     }
