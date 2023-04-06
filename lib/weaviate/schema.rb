@@ -46,8 +46,6 @@ module Weaviate
         req.body["replicationConfig"] = replication_config unless replication_config.nil?
       end
 
-      if response.success?
-      end
       response.body
     end
 
