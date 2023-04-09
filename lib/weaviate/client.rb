@@ -79,8 +79,13 @@ module Weaviate
 
     def graphql
       headers = {}
+
       if model_service && model_service_api_key
         headers[API_KEY_HEADERS[model_service]] = model_service_api_key
+      end
+
+      if api_key
+        headers['Authorization'] = "Bearer #{api_key}"
       end
 
       @graphql ||= Graphlient::Client.new(
