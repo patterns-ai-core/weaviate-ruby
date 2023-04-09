@@ -12,7 +12,8 @@ module Weaviate
       where: nil,
       near_text: nil,
       near_vector: nil,
-      near_object: nil
+      near_object: nil,
+      ask: nil
     )
       response = client.graphql.execute(
         get_query(
@@ -22,7 +23,8 @@ module Weaviate
           where: where,
           near_text: near_text,
           near_vector: near_vector,
-          near_object: near_object
+          near_object: near_object,
+          ask: ask
         ),
         after: after,
         limit: limit,
@@ -122,6 +124,7 @@ module Weaviate
       near_text: nil,
       near_vector: nil,
       near_object: nil,
+      ask: nil,
       sort: nil
     )
       client.graphql.parse <<~GRAPHQL
@@ -138,6 +141,7 @@ module Weaviate
               #{near_text.present? ? "nearText: #{near_text}" : ""},
               #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
               #{near_object.present? ? "nearObject: #{near_object}" : ""},
+              #{ask.present? ? "ask: #{ask}" : ""},
               #{where.present? ? "where: #{where}" : ""},
               #{sort.present? ? "sort: #{sort}" : ""}
             ) {
