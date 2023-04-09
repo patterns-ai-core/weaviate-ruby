@@ -175,7 +175,7 @@ where_obj = '{ path: ["id"], operator: Equal, valueString: "..." }'
 
 client.query.get(
     class_name: 'Question',
-    fields: 'question answer category',
+    fields: "question answer category _additional { answer { result hasAnswer property startPosition endPosition } }",
     limit: "1",
     offset: "1",
     after: "id",
@@ -194,6 +194,8 @@ client.query.get(
     # bm25: ...,
 
     # near_object: ...,
+
+    ask: '{ question: "your-question?" }'
 )
 
 # Example queries:
