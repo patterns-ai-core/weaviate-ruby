@@ -172,6 +172,7 @@ client.objects.batch_delete(
 near_text = '{ concepts: ["biology"] }'
 sort_obj = '{ path: ["category"], order: desc }'
 where_obj = '{ path: ["id"], operator: Equal, valueString: "..." }'
+with_hybrid = '{ query: "Sweets", alpha: 0.5 }'
 
 client.query.get(
     class_name: 'Question',
@@ -187,13 +188,13 @@ client.query.get(
     near_text: near_text,
 
     # To use this parameter you must have created your schema by setting the `vectorizer:` property to 'multi2vec-clip' or 'img2vec-neural'
-    # near_image: ...,
+    near_image: near_image,
 
-    # hybrid: ...,
+    with_hybrid: with_hybrid,
 
-    # bm25: ...,
+    bm25: bm25,
 
-    # near_object: ...,
+    near_object: near_object,
 
     ask: '{ question: "your-question?" }'
 )
