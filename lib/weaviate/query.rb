@@ -12,6 +12,7 @@ module Weaviate
       where: nil,
       near_text: nil,
       near_vector: nil,
+      near_image: nil,
       near_object: nil,
       with_hybrid: nil,
       bm25: nil,
@@ -25,6 +26,7 @@ module Weaviate
           where: where,
           near_text: near_text,
           near_vector: near_vector,
+          near_image: near_image,
           near_object: near_object,
           with_hybrid: with_hybrid,
           bm25: bm25,
@@ -45,6 +47,7 @@ module Weaviate
       object_limit: nil,
       near_text: nil,
       near_vector: nil,
+      near_image: nil,
       near_object: nil,
       group_by: nil
     )
@@ -54,6 +57,7 @@ module Weaviate
           fields: fields,
           near_text: near_text,
           near_vector: near_vector,
+          near_image: near_image,
           near_object: near_object
         ),
         group_by: group_by,
@@ -73,6 +77,7 @@ module Weaviate
       where: nil,
       near_text: nil,
       near_vector: nil,
+      near_image: nil,
       near_object: nil
     )
       response = client.graphql.execute(
@@ -80,6 +85,7 @@ module Weaviate
           fields: fields,
           near_text: near_text,
           near_vector: near_vector,
+          near_image: near_image,
           near_object: near_object
         ),
         after: after,
@@ -98,6 +104,7 @@ module Weaviate
       where: nil,
       near_text: nil,
       near_vector: nil,
+      near_image: nil,
       near_object: nil,
       sort: nil
     )
@@ -111,6 +118,7 @@ module Weaviate
             offset: $offset,
             #{near_text.present? ? "nearText: #{near_text}" : ""},
             #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
+            #{near_image.present? ? "nearImage: #{near_image}" : ""},
             #{near_object.present? ? "nearObject: #{near_object}" : ""}
             #{where.present? ? "where: #{where}" : ""},
             #{sort.present? ? "sort: #{sort}" : ""}
@@ -127,6 +135,7 @@ module Weaviate
       where: nil,
       near_text: nil,
       near_vector: nil,
+      near_image: nil,
       near_object: nil,
       with_hybrid: nil,
       bm25: nil,
@@ -146,6 +155,7 @@ module Weaviate
               offset: $offset,
               #{near_text.present? ? "nearText: #{near_text}" : ""},
               #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
+              #{near_image.present? ? "nearImage: #{near_image}" : ""},
               #{near_object.present? ? "nearObject: #{near_object}" : ""},
               #{with_hybrid.present? ? "hybrid: #{with_hybrid}" : ""},
               #{bm25.present? ? "bm25: #{bm25}" : ""},
@@ -165,6 +175,7 @@ module Weaviate
       fields:,
       near_text: nil,
       near_vector: nil,
+      near_image: nil,
       near_object: nil
     )
       client.graphql.parse <<~GRAPHQL
@@ -178,6 +189,7 @@ module Weaviate
               groupBy: $group_by,
               #{near_text.present? ? "nearText: #{near_text}" : ""},
               #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
+              #{near_image.present? ? "nearImage: #{near_image}" : ""},
               #{near_object.present? ? "nearObject: #{near_object}" : ""}
             ) {
               #{fields}
