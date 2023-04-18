@@ -5,7 +5,7 @@ require "graphlient"
 
 module Weaviate
   class Client
-    attr_reader :scheme, :host, :api_key, :model_service, :model_service_api_key, :adapter
+    attr_reader :url, :api_key, :model_service, :model_service_api_key, :adapter
 
     API_VERSION = "v1"
 
@@ -16,8 +16,7 @@ module Weaviate
     }
 
     def initialize(
-      scheme:,
-      host:,
+      url:,
       api_key: nil,
       model_service: nil,
       model_service_api_key: nil,
@@ -25,8 +24,7 @@ module Weaviate
     )
       validate_model_service!(model_service) unless model_service.nil?
 
-      @scheme = scheme
-      @host = host
+      @url = url
       @api_key = api_key
       @model_service = model_service
       @model_service_api_key = model_service_api_key
@@ -89,7 +87,7 @@ module Weaviate
       end
 
       @graphql ||= Graphlient::Client.new(
-        "#{scheme}://#{host}/#{API_VERSION}/graphql",
+        "#{url}/#{API_VERSION}/graphql",
         headers: headers,
         http_options: {
           read_timeout: 20,
@@ -99,7 +97,7 @@ module Weaviate
     end
 
     def connection
-      @connection ||= Faraday.new(url: "#{scheme}://#{host}/#{API_VERSION}/") do |faraday|
+      @connection ||= Faraday.new(url: "#{url}/#{API_VERSION}/") do |faraday|
         if api_key
           faraday.request :authorization, :Bearer, api_key
         end

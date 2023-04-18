@@ -5,8 +5,7 @@ require "spec_helper"
 RSpec.describe Weaviate::Objects do
   let(:client) {
     Weaviate::Client.new(
-      scheme: "http",
-      host: "localhost:8080",
+      url: "http://localhost:8080",
       model_service: :openai,
       model_service_api_key: "123"
     )

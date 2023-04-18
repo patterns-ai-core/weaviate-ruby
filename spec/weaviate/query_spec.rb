@@ -6,8 +6,7 @@ require "graphlient"
 RSpec.describe Weaviate::Query do
   let(:client) {
     Weaviate::Client.new(
-      scheme: "https",
-      host: "localhost:8080",
+      url: "http://localhost:8080",
       model_service: :openai,
       model_service_api_key: "123"
     )

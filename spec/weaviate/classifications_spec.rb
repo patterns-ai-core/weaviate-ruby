@@ -5,8 +5,7 @@ require "spec_helper"
 RSpec.describe Weaviate::Classifications do
   let(:client) {
     Weaviate::Client.new(
-      scheme: "http",
-      host: "localhost:8080"
+      url: "http://localhost:8080"
     )
   }
 
