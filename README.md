@@ -28,8 +28,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
 require 'weaviate'
 
 client = Weaviate::Client.new(
-    scheme: 'https',
-    host: 'some-endpoint.weaviate.network',  # Replace with your endpoint
+    url: 'https://some-endpoint.weaviate.network',  # Replace with your endpoint
     api_key: '', # Weaviate API key
     model_service: :openai, # Service that will be used to generate vectors. Possible values: :openai, :cohere, :huggingface
     model_service_api_key: 'xxxxxxx' # Either OpenAI, Cohere or Hugging Face API key

@@ -12,8 +12,7 @@ require "weaviate"
 # Pry.start
 
 client = Weaviate::Client.new(
-  scheme: "http",
-  host: ENV["WEAVIATE_HOST"],
+  url: ENV["WEAVIATE_URL"],
   api_key: ENV["WEAVIATE_API_KEY"],
   model_service: :openai,
   model_service_api_key: ENV["MODEL_SERVICE_API_KEY"]
