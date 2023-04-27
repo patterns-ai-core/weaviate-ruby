@@ -169,6 +169,7 @@ client.objects.batch_delete(
 #### Get{}
 ```ruby
 near_text = '{ concepts: ["biology"] }'
+near_vector = '{ vector: [0.1, 0.2, ...] }'
 sort_obj = '{ path: ["category"], order: desc }'
 where_obj = '{ path: ["id"], operator: Equal, valueString: "..." }'
 with_hybrid = '{ query: "Sweets", alpha: 0.5 }'
@@ -188,6 +189,8 @@ client.query.get(
 
     # To use this parameter you must have created your schema by setting the `vectorizer:` property to 'multi2vec-clip' or 'img2vec-neural'
     near_image: near_image,
+    
+    near_vector: near_vector,
 
     with_hybrid: with_hybrid,
 
