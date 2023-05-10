@@ -3,6 +3,7 @@ PATH
   specs:
     weaviate-ruby (0.8.1)
       faraday (~> 1)
+      faraday_middleware (~> 1)
       graphlient (~> 0.6.0)
 
 GEM
