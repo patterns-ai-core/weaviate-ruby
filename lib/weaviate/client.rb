@@ -12,7 +12,7 @@ module Weaviate
 
     API_KEY_HEADERS = {
       openai: "X-OpenAI-Api-Key",
-      azure: "X-Azure-Api-Key",
+      azure_openai: "X-Azure-Api-Key",
       cohere: "X-Cohere-Api-Key",
       huggingface: "X-HuggingFace-Api-Key"
     }
