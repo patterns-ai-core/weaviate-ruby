@@ -30,8 +30,8 @@ require 'weaviate'
 client = Weaviate::Client.new(
     url: 'https://some-endpoint.weaviate.network',  # Replace with your endpoint
     api_key: '', # Weaviate API key
-    model_service: :openai, # Service that will be used to generate vectors. Possible values: :openai, :azure_openai, :cohere, :huggingface
-    model_service_api_key: 'xxxxxxx' # Either OpenAI, Azure OpenAI, Cohere or Hugging Face API key
+    model_service: :openai, # Service that will be used to generate vectors. Possible values: :openai, :cohere, :huggingface
+    model_service_api_key: 'xxxxxxx' # Either OpenAI, Cohere or Hugging Face API key
 )
 ```
 
