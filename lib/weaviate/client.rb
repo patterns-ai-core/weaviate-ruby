@@ -14,7 +14,8 @@ module Weaviate
       openai: "X-OpenAI-Api-Key",
       azure_openai: "X-Azure-Api-Key",
       cohere: "X-Cohere-Api-Key",
-      huggingface: "X-HuggingFace-Api-Key"
+      huggingface: "X-HuggingFace-Api-Key",
+      google_palm: "X-Palm-Api-Key"
     }
 
     def initialize(
