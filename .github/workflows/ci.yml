@@ -25,8 +25,20 @@ jobs:
           bundler-cache: true
 
       - name: StandardRb check
-        run: bundle exec standardrb
+        run: bundle exec standardrb --format progress --format github --color
 
       - name: Run tests
         run: |
-          bundle exec rspec 
+          bundle exec rspec
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler: default
+          bundler-cache: true
+      - name: Build docs
+        run: bundle exec rake yard
