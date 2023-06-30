@@ -39,4 +39,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "faraday_middleware", "~> 1"
   spec.add_dependency "graphlient", "~> 0.6.0"
   spec.add_development_dependency "pry-byebug", "~> 3.9"
+  spec.add_development_dependency "yard"
+  spec.add_development_dependency "rdiscount" # for github-flavored markdown in yard
 end
