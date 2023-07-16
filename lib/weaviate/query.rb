@@ -4,6 +4,7 @@ module Weaviate
   class Query < Base
     def get(
       class_name:,
+      tenant:,
       fields:,
       after: nil,
       limit: nil,
@@ -21,6 +22,7 @@ module Weaviate
       response = client.graphql.execute(
         get_query(
           class_name: class_name,
+          tenant: tenant,
           fields: fields,
           sort: sort,
           where: where,
@@ -131,6 +133,7 @@ module Weaviate
 
     def get_query(
       class_name:,
+      tenant:,
       fields:,
       where: nil,
       near_text: nil,
@@ -145,6 +148,7 @@ module Weaviate
       client.graphql.parse <<~GRAPHQL
         query(
           $after: String,
+          $tenant: String,
           $limit: Int,
           $offset: Int,
         ) {
@@ -152,6 +156,7 @@ module Weaviate
             #{class_name}(
               after: $after,
               limit: $limit,
+              tenant: $tenant,
               offset: $offset,
               #{near_text.present? ? "nearText: #{near_text}" : ""},
               #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
