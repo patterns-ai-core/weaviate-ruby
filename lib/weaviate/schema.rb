@@ -25,6 +25,7 @@ module Weaviate
     def create(
       class_name:,
       description: nil,
+      multiTenancyConfig: nil,
       properties: nil,
       vector_index_type: nil,
       vector_index_config: nil,
@@ -37,6 +38,7 @@ module Weaviate
         req.body = {}
         req.body["class"] = class_name
         req.body["description"] = description unless description.nil?
+        req.body["multiTenancyConfig"] = multiTenancyConfig unless multiTenancyConfig.nil?
         req.body["vectorIndexType"] = vector_index_type unless vector_index_type.nil?
         req.body["vectorIndexConfig"] = vector_index_config unless vector_index_config.nil?
         req.body["vectorizer"] = vectorizer unless vectorizer.nil?
