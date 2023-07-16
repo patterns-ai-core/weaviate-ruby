@@ -33,7 +33,8 @@ module Weaviate
       properties:,
       consistency_level: nil,
       id: nil,
-      vector: nil
+      vector: nil,
+      tenant: nil
     )
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
@@ -49,6 +50,7 @@ module Weaviate
         req.body["properties"] = properties
         req.body["id"] = id unless id.nil?
         req.body["vector"] = vector unless vector.nil?
+        req.body["tenant"] = tenant unless tenant.nil?
       end
 
       response.body
@@ -74,13 +76,15 @@ module Weaviate
       class_name:,
       id:,
       include: nil,
-      consistency_level: nil
+      consistency_level: nil,
+      tenant: nil
     )
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
       response = client.connection.get("#{PATH}/#{class_name}/#{id}") do |req|
         req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
         req.params["include"] = include unless include.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
       end
 
       response.body
@@ -90,12 +94,14 @@ module Weaviate
     def exists?(
       class_name:,
       id:,
-      consistency_level: nil
+      consistency_level: nil,
+      tenant: nil
     )
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
       response = client.connection.head("#{PATH}/#{class_name}/#{id}") do |req|
         req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
       end
 
       response.status == 204
@@ -107,7 +113,8 @@ module Weaviate
       id:,
       properties:,
       vector: nil,
-      consistency_level: nil
+      consistency_level: nil,
+      tenant: nil
     )
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
@@ -119,6 +126,7 @@ module Weaviate
         req.body["class"] = class_name
         req.body["properties"] = properties
         req.body["vector"] = vector unless vector.nil?
+        req.body["tenant"] = tenant unless tenant.nil?
       end
 
       response.body
@@ -128,12 +136,14 @@ module Weaviate
     def delete(
       class_name:,
       id:,
-      consistency_level: nil
+      consistency_level: nil,
+      tenant: nil
     )
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
       response = client.connection.delete("#{PATH}/#{class_name}/#{id}") do |req|
         req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
       end
 
       if response.success?
