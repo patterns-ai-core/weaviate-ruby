@@ -26,6 +26,7 @@ module Weaviate
       class_name:,
       description: nil,
       properties: nil,
+      multi_tenant: nil,
       vector_index_type: nil,
       vector_index_config: nil,
       vectorizer: nil,
@@ -42,6 +43,7 @@ module Weaviate
         req.body["vectorizer"] = vectorizer unless vectorizer.nil?
         req.body["moduleConfig"] = module_config unless module_config.nil?
         req.body["properties"] = properties unless properties.nil?
+        req.body["multiTenancyConfig"] = { enabled: true } unless multi_tenant.nil?
         req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
         req.body["replicationConfig"] = replication_config unless replication_config.nil?
       end
@@ -90,6 +92,42 @@ module Weaviate
 
       if response.success?
       end
+      response.body
+    end
+
+    # Adds one or more tenants to a class.
+    def add_tenants(
+      class_name:,
+      tenants:
+    )
+      response = client.connection.post("#{PATH}/#{class_name}/tenants") do |req|
+        req.body = {}
+        req.body = tenants.map { |tenant| { name: tenant } }
+      end
+
+      if response.success?
+      end
+      response.body
+    end
+
+    # List tenants of a class.
+    def list_tenants(class_name:)
+      response = client.connection.get("#{PATH}/#{class_name}/tenants")
+      response.body if response.success?
+    end
+
+    # Remove one or more tenants from a class.
+    def remove_tenants(
+      class_name:,
+      tenants:
+    )
+      response = client.connection.delete("#{PATH}/#{class_name}/tenants") do |req|
+        req.body = tenants
+      end
+
+      if response.success?
+      end
+
       response.body
     end
 

@@ -6,6 +6,7 @@ module Weaviate
       class_name:,
       fields:,
       after: nil,
+      tenant: nil,
       limit: nil,
       offset: nil,
       sort: nil,
@@ -33,6 +34,7 @@ module Weaviate
           ask: ask
         ),
         after: after,
+        tenant: tenant,
         limit: limit,
         offset: offset
       )
@@ -150,6 +152,7 @@ module Weaviate
         ) {
           Get {
             #{class_name}(
+              tenant: $tenant,
               after: $after,
               limit: $limit,
               offset: $offset,

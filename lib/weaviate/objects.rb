@@ -31,6 +31,7 @@ module Weaviate
     def create(
       class_name:,
       properties:,
+      tenant: nil,
       consistency_level: nil,
       id: nil,
       vector: nil
@@ -47,6 +48,7 @@ module Weaviate
         req.body = {}
         req.body["class"] = class_name
         req.body["properties"] = properties
+        req.body["tenant"] = tenant unless tenant.blank?
         req.body["id"] = id unless id.nil?
         req.body["vector"] = vector unless vector.nil?
       end
