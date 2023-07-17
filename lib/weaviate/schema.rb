@@ -100,20 +100,16 @@ module Weaviate
       class_name:,
       tenants:
     )
-      response = client.connection.post("#{PATH}/#{class_name}/tenants") do |req|
-        req.body = {}
-        req.body = tenants.map { |tenant| { name: tenant } }
+      client.connection.post("#{PATH}/#{class_name}/tenants") do |req|
+        tenants_str = tenants.map { |t| %({"name": "#{t}"}) }.join(", ")
+        req.body = "[#{tenants_str}]"
       end
-
-      if response.success?
-      end
-      response.body
     end
 
     # List tenants of a class.
     def list_tenants(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}/tenants")
-      response.body if response.success?
+      response.body
     end
 
     # Remove one or more tenants from a class.

@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "weaviate"
+
+# You can add fixtures and/or initialization code here to make experimenting
+# with your gem easier. You can also use a different console, if you like.
+
+# (If you use this, don't forget to add pry to your Gemfile!)
+# require "pry"
+# Pry.start
+
+client = Weaviate::Client.new(
+  url: ENV["WEAVIATE_URL"],
+  api_key: ENV["WEAVIATE_API_KEY"],
+  model_service: :openai,
+  model_service_api_key: ENV["MODEL_SERVICE_API_KEY"]
+)
+
+puts "Creating a tenant"
+WeaviateClient.client.schema.create(
+  class_name: 'Thought',
+  multi_tenant: true,
+  description: 'Thoughts made by a bot about a subject',
+  properties: [
+    {
+      "dataType": ["text"],
+      "description": "The type of thought",
+      "name": "type"
+    }, {
+      "dataType": ["text"],
+      "description": "The observation (in brief)",
+      "name": "brief"
+    }, {
+      "dataType": ["text"],
+      "description": "The full observation",
+      "name": "content"
+    }, {
+      "dataType": ["uuid"],
+      "description": "The id of the subject",
+      "name": "subject_id"
+    }, {
+      "dataType": ["uuid"],
+      "description": "The id of the bot",
+      "name": "bot_id"
+    }
+  ],
+  vectorizer: "text2vec-openai"
+)
+
+puts "Adding a tenant for Thought class"
+puts client
+  .schema
+  .add_tenants(
+    class_name: "Thought",
+    tenants: ["fe744efd-9f39-4792-ade4-08bce8e1145f"]
+  )
+
+puts "Listings tenants for Thought class"
+puts client.schema.list_tenants(class_name: "Thought")
