@@ -8,6 +8,7 @@ module Weaviate
     def list(
       class_name: nil,
       limit: nil,
+      tenant: nil,
       offset: nil,
       after: nil,
       include: nil,
@@ -16,6 +17,7 @@ module Weaviate
     )
       response = client.connection.get(PATH) do |req|
         req.params["class"] = class_name unless class_name.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
         req.params["limit"] = limit unless limit.nil?
         req.params["offset"] = offset unless offset.nil?
         req.params["after"] = after unless after.nil?
