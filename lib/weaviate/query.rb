@@ -22,6 +22,7 @@ module Weaviate
       response = client.graphql.execute(
         get_query(
           class_name: class_name,
+          tenant: tenant,
           fields: fields,
           sort: sort,
           where: where,
@@ -34,7 +35,6 @@ module Weaviate
           ask: ask
         ),
         after: after,
-        tenant: tenant,
         limit: limit,
         offset: offset
       )
@@ -133,6 +133,7 @@ module Weaviate
 
     def get_query(
       class_name:,
+      tenant: nil,
       fields:,
       where: nil,
       near_text: nil,
@@ -152,10 +153,10 @@ module Weaviate
         ) {
           Get {
             #{class_name}(
-              tenant: $tenant,
               after: $after,
               limit: $limit,
               offset: $offset,
+              #{tenant.present? ? "tenant: #{tenant}" : ""}
               #{near_text.present? ? "nearText: #{near_text}" : ""},
               #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
               #{near_image.present? ? "nearImage: #{near_image}" : ""},
