@@ -8,6 +8,7 @@ module Weaviate
     def list(
       class_name: nil,
       limit: nil,
+      tenant: nil,
       offset: nil,
       after: nil,
       include: nil,
@@ -16,6 +17,7 @@ module Weaviate
     )
       response = client.connection.get(PATH) do |req|
         req.params["class"] = class_name unless class_name.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
         req.params["limit"] = limit unless limit.nil?
         req.params["offset"] = offset unless offset.nil?
         req.params["after"] = after unless after.nil?
@@ -31,6 +33,7 @@ module Weaviate
     def create(
       class_name:,
       properties:,
+      tenant: nil,
       consistency_level: nil,
       id: nil,
       vector: nil
@@ -47,6 +50,7 @@ module Weaviate
         req.body = {}
         req.body["class"] = class_name
         req.body["properties"] = properties
+        req.body["tenant"] = tenant unless tenant.blank?
         req.body["id"] = id unless id.nil?
         req.body["vector"] = vector unless vector.nil?
       end

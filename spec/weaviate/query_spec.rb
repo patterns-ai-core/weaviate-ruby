@@ -55,6 +55,7 @@ RSpec.describe Weaviate::Query do
         class_name: "Question",
         fields: "question, category",
         near_text: "{ concepts: [\"biology\"] }",
+        tenant: "tenant_name",
         limit: "1"
       )
 

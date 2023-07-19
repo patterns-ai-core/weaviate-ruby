@@ -57,6 +57,7 @@ RSpec.describe Weaviate::Schema do
       response = schema.create(
         class_name: "Question",
         description: "Information from a Jeopardy! question",
+        multi_tenant: true,
         properties: [
           {
             dataType: ["text"],
@@ -111,8 +112,29 @@ RSpec.describe Weaviate::Schema do
     end
   end
 
-  xdescribe "#add_property" do
+  describe "#add_property"
+
+  describe "#add_tenants" do
+    let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:post)
+        .with("schema/Question/tenants")
+        .and_return(response)
+    end
+
+    it "returns the schema" do
+      response = schema.add_tenants(
+        class_name: "Question",
+        tenants: ["tenant1", "tenant2"]
+      )
+      expect(response.dig("class")).to eq("Question")
+    end
   end
+
+  describe "#list_tenants"
+
+  describe "#remove_tenants"
 
   describe "#shards" do
     let(:response) { OpenStruct.new(success?: true, body: shard_fixture) }

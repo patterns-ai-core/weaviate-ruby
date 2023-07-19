@@ -26,6 +26,7 @@ RSpec.describe Weaviate::Objects do
     it "creates an object" do
       response = objects.create(
         class_name: "Question",
+        tenant: "tenant_name",
         properties: {
           answer: "42",
           question: "What is the meaning of life?",
