@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [0.8.5] - 2023-07-19
+- Add multi-tenancy support
+
+## [0.8.4] - 2023-06-30
+- Adding yard
+
 ## [0.8.3] - 2023-06-25
 - Add Google PaLM support
 
