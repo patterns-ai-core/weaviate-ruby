@@ -43,7 +43,7 @@ module Weaviate
         req.body["vectorizer"] = vectorizer unless vectorizer.nil?
         req.body["moduleConfig"] = module_config unless module_config.nil?
         req.body["properties"] = properties unless properties.nil?
-        req.body["multiTenancyConfig"] = { enabled: true } unless multi_tenant.nil?
+        req.body["multiTenancyConfig"] = {enabled: true} unless multi_tenant.nil?
         req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
         req.body["replicationConfig"] = replication_config unless replication_config.nil?
       end
