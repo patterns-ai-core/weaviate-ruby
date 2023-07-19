@@ -100,10 +100,11 @@ module Weaviate
       class_name:,
       tenants:
     )
-      client.connection.post("#{PATH}/#{class_name}/tenants") do |req|
+      response = client.connection.post("#{PATH}/#{class_name}/tenants") do |req|
         tenants_str = tenants.map { |t| %({"name": "#{t}"}) }.join(", ")
         req.body = "[#{tenants_str}]"
       end
+      response.body
     end
 
     # List tenants of a class.
