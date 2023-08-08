@@ -8,6 +8,7 @@ module Weaviate
       after: nil,
       tenant: nil,
       limit: nil,
+      autocut: nil,
       offset: nil,
       sort: nil,
       where: nil,
@@ -24,6 +25,7 @@ module Weaviate
           class_name: class_name,
           tenant: tenant,
           fields: fields,
+          autocut: autocut,
           sort: sort,
           where: where,
           near_text: near_text,
@@ -85,6 +87,8 @@ module Weaviate
       response = client.graphql.execute(
         explore_query(
           fields: fields,
+          sort: sort,
+          where: where,
           near_text: near_text,
           near_vector: near_vector,
           near_image: near_image,
@@ -121,7 +125,7 @@ module Weaviate
             #{near_text.present? ? "nearText: #{near_text}" : ""},
             #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
             #{near_image.present? ? "nearImage: #{near_image}" : ""},
-            #{near_object.present? ? "nearObject: #{near_object}" : ""}
+            #{near_object.present? ? "nearObject: #{near_object}" : ""},
             #{where.present? ? "where: #{where}" : ""},
             #{sort.present? ? "sort: #{sort}" : ""}
           ) {
@@ -134,6 +138,7 @@ module Weaviate
     def get_query(
       class_name:,
       fields:, tenant: nil,
+      autocut:,
       where: nil,
       near_text: nil,
       near_vector: nil,
@@ -155,7 +160,8 @@ module Weaviate
               after: $after,
               limit: $limit,
               offset: $offset,
-              #{tenant.present? ? "tenant: #{tenant}" : ""}
+              #{autocut.present? ? "autocut: #{autocut}" : ""},
+              #{tenant.present? ? "tenant: #{tenant}" : ""},
               #{near_text.present? ? "nearText: #{near_text}" : ""},
               #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
               #{near_image.present? ? "nearImage: #{near_image}" : ""},
