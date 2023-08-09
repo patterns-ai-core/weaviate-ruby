@@ -137,8 +137,9 @@ module Weaviate
 
     def get_query(
       class_name:,
-      fields:, tenant: nil,
+      fields:,
       autocut:,
+      tenant: nil,
       where: nil,
       near_text: nil,
       near_vector: nil,
