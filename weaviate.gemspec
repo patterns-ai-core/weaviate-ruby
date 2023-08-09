@@ -35,9 +35,8 @@ Gem::Specification.new do |spec|
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 
-  spec.add_dependency "faraday", "~> 1"
-  spec.add_dependency "faraday_middleware", "~> 1"
-  spec.add_dependency "graphlient", "~> 0.6.0"
+  spec.add_dependency "faraday", ">= 2.0.1", "< 3.0"
+  spec.add_dependency "graphlient", "~> 0.7.0"
   spec.add_development_dependency "pry-byebug", "~> 3.9"
   spec.add_development_dependency "yard"
   spec.add_development_dependency "rdiscount" # for github-flavored markdown in yard
