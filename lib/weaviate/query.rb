@@ -48,6 +48,7 @@ module Weaviate
     def aggs(
       class_name:,
       fields: nil,
+      where: nil,
       object_limit: nil,
       near_text: nil,
       near_vector: nil,
@@ -59,6 +60,7 @@ module Weaviate
         aggs_query(
           class_name: class_name,
           fields: fields,
+          where: where,
           near_text: near_text,
           near_vector: near_vector,
           near_image: near_image,
@@ -183,6 +185,7 @@ module Weaviate
     def aggs_query(
       class_name:,
       fields:,
+      where: nil,
       near_text: nil,
       near_vector: nil,
       near_image: nil,
@@ -200,7 +203,8 @@ module Weaviate
               #{near_text.present? ? "nearText: #{near_text}" : ""},
               #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
               #{near_image.present? ? "nearImage: #{near_image}" : ""},
-              #{near_object.present? ? "nearObject: #{near_object}" : ""}
+              #{near_object.present? ? "nearObject: #{near_object}" : ""},
+              #{where.present? ? "where: #{where}" : ""}
             ) {
               #{fields}
             }
