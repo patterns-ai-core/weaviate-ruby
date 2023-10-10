@@ -124,12 +124,12 @@ module Weaviate
           Explore (
             limit: $limit,
             offset: $offset,
-            #{near_text.present? ? "nearText: #{near_text}" : ""},
-            #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
-            #{near_image.present? ? "nearImage: #{near_image}" : ""},
-            #{near_object.present? ? "nearObject: #{near_object}" : ""},
-            #{where.present? ? "where: #{where}" : ""},
-            #{sort.present? ? "sort: #{sort}" : ""}
+            #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
+            #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
+            #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
+            #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
+            #{(!where.nil?) ? "where: #{where}" : ""},
+            #{(!sort.nil?) ? "sort: #{sort}" : ""}
           ) {
             #{fields}
           }
@@ -163,17 +163,17 @@ module Weaviate
               after: $after,
               limit: $limit,
               offset: $offset,
-              #{autocut.present? ? "autocut: #{autocut}" : ""},
-              #{tenant.present? ? "tenant: #{tenant}" : ""},
-              #{near_text.present? ? "nearText: #{near_text}" : ""},
-              #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
-              #{near_image.present? ? "nearImage: #{near_image}" : ""},
-              #{near_object.present? ? "nearObject: #{near_object}" : ""},
-              #{with_hybrid.present? ? "hybrid: #{with_hybrid}" : ""},
-              #{bm25.present? ? "bm25: #{bm25}" : ""},
-              #{ask.present? ? "ask: #{ask}" : ""},
-              #{where.present? ? "where: #{where}" : ""},
-              #{sort.present? ? "sort: #{sort}" : ""}
+              #{(!autocut.nil?) ? "autocut: #{autocut}" : ""},
+              #{(!tenant.nil?) ? "tenant: #{tenant}" : ""},
+              #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
+              #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
+              #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
+              #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
+              #{(!with_hybrid.nil?) ? "hybrid: #{with_hybrid}" : ""},
+              #{(!bm25.nil?) ? "bm25: #{bm25}" : ""},
+              #{(!ask.nil?) ? "ask: #{ask}" : ""},
+              #{(!where.nil?) ? "where: #{where}" : ""},
+              #{(!sort.nil?) ? "sort: #{sort}" : ""}
             ) {
               #{fields}
             }
@@ -200,11 +200,11 @@ module Weaviate
             #{class_name}(
               objectLimit: $object_limit,
               groupBy: $group_by,
-              #{near_text.present? ? "nearText: #{near_text}" : ""},
-              #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
-              #{near_image.present? ? "nearImage: #{near_image}" : ""},
-              #{near_object.present? ? "nearObject: #{near_object}" : ""},
-              #{where.present? ? "where: #{where}" : ""}
+              #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
+              #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
+              #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
+              #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
+              #{(!where.nil?) ? "where: #{where}" : ""}
             ) {
               #{fields}
             }
