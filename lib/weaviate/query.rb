@@ -140,7 +140,7 @@ module Weaviate
     def get_query(
       class_name:,
       fields:,
-      autocut:,
+      autocut: nil,
       tenant: nil,
       where: nil,
       near_text: nil,
