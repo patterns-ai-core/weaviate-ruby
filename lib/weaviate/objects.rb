@@ -36,8 +36,7 @@ module Weaviate
       tenant: nil,
       consistency_level: nil,
       id: nil,
-      vector: nil,
-      tenant: nil
+      vector: nil
     )
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
@@ -54,7 +53,6 @@ module Weaviate
         req.body["tenant"] = tenant unless tenant.blank?
         req.body["id"] = id unless id.nil?
         req.body["vector"] = vector unless vector.nil?
-        req.body["tenant"] = tenant unless tenant.nil?
       end
 
       response.body
