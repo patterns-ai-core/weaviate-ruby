@@ -8,6 +8,7 @@ module Weaviate
       after: nil,
       tenant: nil,
       limit: nil,
+      autocut: nil,
       offset: nil,
       sort: nil,
       where: nil,
@@ -24,6 +25,7 @@ module Weaviate
           class_name: class_name,
           tenant: tenant,
           fields: fields,
+          autocut: autocut,
           sort: sort,
           where: where,
           near_text: near_text,
@@ -46,6 +48,7 @@ module Weaviate
     def aggs(
       class_name:,
       fields: nil,
+      where: nil,
       object_limit: nil,
       near_text: nil,
       near_vector: nil,
@@ -57,6 +60,7 @@ module Weaviate
         aggs_query(
           class_name: class_name,
           fields: fields,
+          where: where,
           near_text: near_text,
           near_vector: near_vector,
           near_image: near_image,
@@ -85,6 +89,8 @@ module Weaviate
       response = client.graphql.execute(
         explore_query(
           fields: fields,
+          sort: sort,
+          where: where,
           near_text: near_text,
           near_vector: near_vector,
           near_image: near_image,
@@ -118,12 +124,12 @@ module Weaviate
           Explore (
             limit: $limit,
             offset: $offset,
-            #{near_text.present? ? "nearText: #{near_text}" : ""},
-            #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
-            #{near_image.present? ? "nearImage: #{near_image}" : ""},
-            #{near_object.present? ? "nearObject: #{near_object}" : ""}
-            #{where.present? ? "where: #{where}" : ""},
-            #{sort.present? ? "sort: #{sort}" : ""}
+            #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
+            #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
+            #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
+            #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
+            #{(!where.nil?) ? "where: #{where}" : ""},
+            #{(!sort.nil?) ? "sort: #{sort}" : ""}
           ) {
             #{fields}
           }
@@ -133,7 +139,9 @@ module Weaviate
 
     def get_query(
       class_name:,
-      fields:, tenant: nil,
+      fields:,
+      autocut: nil,
+      tenant: nil,
       where: nil,
       near_text: nil,
       near_vector: nil,
@@ -155,16 +163,17 @@ module Weaviate
               after: $after,
               limit: $limit,
               offset: $offset,
-              #{tenant.present? ? "tenant: #{tenant}" : ""}
-              #{near_text.present? ? "nearText: #{near_text}" : ""},
-              #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
-              #{near_image.present? ? "nearImage: #{near_image}" : ""},
-              #{near_object.present? ? "nearObject: #{near_object}" : ""},
-              #{with_hybrid.present? ? "hybrid: #{with_hybrid}" : ""},
-              #{bm25.present? ? "bm25: #{bm25}" : ""},
-              #{ask.present? ? "ask: #{ask}" : ""},
-              #{where.present? ? "where: #{where}" : ""},
-              #{sort.present? ? "sort: #{sort}" : ""}
+              #{(!autocut.nil?) ? "autocut: #{autocut}" : ""},
+              #{(!tenant.nil?) ? "tenant: #{tenant}" : ""},
+              #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
+              #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
+              #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
+              #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
+              #{(!with_hybrid.nil?) ? "hybrid: #{with_hybrid}" : ""},
+              #{(!bm25.nil?) ? "bm25: #{bm25}" : ""},
+              #{(!ask.nil?) ? "ask: #{ask}" : ""},
+              #{(!where.nil?) ? "where: #{where}" : ""},
+              #{(!sort.nil?) ? "sort: #{sort}" : ""}
             ) {
               #{fields}
             }
@@ -176,6 +185,7 @@ module Weaviate
     def aggs_query(
       class_name:,
       fields:,
+      where: nil,
       near_text: nil,
       near_vector: nil,
       near_image: nil,
@@ -190,10 +200,11 @@ module Weaviate
             #{class_name}(
               objectLimit: $object_limit,
               groupBy: $group_by,
-              #{near_text.present? ? "nearText: #{near_text}" : ""},
-              #{near_vector.present? ? "nearVector: #{near_vector}" : ""},
-              #{near_image.present? ? "nearImage: #{near_image}" : ""},
-              #{near_object.present? ? "nearObject: #{near_object}" : ""}
+              #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
+              #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
+              #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
+              #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
+              #{(!where.nil?) ? "where: #{where}" : ""}
             ) {
               #{fields}
             }
