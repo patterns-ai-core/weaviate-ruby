@@ -164,7 +164,7 @@ module Weaviate
               limit: $limit,
               offset: $offset,
               #{(!autocut.nil?) ? "autocut: #{autocut}" : ""},
-              #{(!tenant.nil?) ? "tenant: #{tenant}" : ""},
+              #{(!tenant.nil?) ? "tenant: \"#{tenant}\"" : ""},
               #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
               #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
               #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
