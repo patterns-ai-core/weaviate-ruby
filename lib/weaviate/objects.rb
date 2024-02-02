@@ -162,7 +162,8 @@ module Weaviate
       where:,
       consistency_level: nil,
       output: nil,
-      dry_run: nil
+      dry_run: nil,
+      tenant: nil
     )
       path = "batch/#{PATH}"
 
@@ -181,6 +182,7 @@ module Weaviate
         }
         req.body["output"] = output unless output.nil?
         req.body["dryRun"] = dry_run unless dry_run.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
       end
 
       response.body
