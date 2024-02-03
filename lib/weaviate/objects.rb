@@ -162,14 +162,13 @@ module Weaviate
       where:,
       consistency_level: nil,
       output: nil,
-      dry_run: nil
+      dry_run: nil,
+      tenant: nil
     )
       path = "batch/#{PATH}"
 
       unless consistency_level.nil?
         validate_consistency_level!(consistency_level)
-
-        path << "?consistency_level=#{consistency_level.to_s.upcase}"
       end
 
       response = client.connection.delete(path) do |req|
@@ -181,6 +180,8 @@ module Weaviate
         }
         req.body["output"] = output unless output.nil?
         req.body["dryRun"] = dry_run unless dry_run.nil?
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
       end
 
       response.body
