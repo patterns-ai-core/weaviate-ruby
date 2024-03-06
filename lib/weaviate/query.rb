@@ -48,6 +48,7 @@ module Weaviate
     def aggs(
       class_name:,
       fields: nil,
+      tenant: nil,
       where: nil,
       object_limit: nil,
       near_text: nil,
@@ -59,6 +60,7 @@ module Weaviate
       response = client.graphql.execute(
         aggs_query(
           class_name: class_name,
+          tenant: tenant,
           fields: fields,
           where: where,
           near_text: near_text,
