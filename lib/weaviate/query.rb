@@ -187,6 +187,7 @@ module Weaviate
     def aggs_query(
       class_name:,
       fields:,
+      tenant: nil,
       where: nil,
       near_text: nil,
       near_vector: nil,
@@ -202,6 +203,7 @@ module Weaviate
             #{class_name}(
               objectLimit: $object_limit,
               groupBy: $group_by,
+              #{(!tenant.nil?) ? "tenant: \"#{tenant}\"" : ""},
               #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
               #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
               #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
