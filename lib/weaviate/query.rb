@@ -48,6 +48,7 @@ module Weaviate
     def aggs(
       class_name:,
       fields: nil,
+      tenant: nil,
       where: nil,
       object_limit: nil,
       near_text: nil,
@@ -59,6 +60,7 @@ module Weaviate
       response = client.graphql.execute(
         aggs_query(
           class_name: class_name,
+          tenant: tenant,
           fields: fields,
           where: where,
           near_text: near_text,
@@ -185,6 +187,7 @@ module Weaviate
     def aggs_query(
       class_name:,
       fields:,
+      tenant: nil,
       where: nil,
       near_text: nil,
       near_vector: nil,
@@ -200,6 +203,7 @@ module Weaviate
             #{class_name}(
               objectLimit: $object_limit,
               groupBy: $group_by,
+              #{(!tenant.nil?) ? "tenant: \"#{tenant}\"" : ""},
               #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
               #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
               #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
