@@ -63,7 +63,7 @@ client.schema.create(
             "name": "category"
         }
     ],
-    # Possible values: 'text2vec-cohere', 'text2vec-openai', 'text2vec-huggingface', 'text2vec-transformers', 'text2vec-contextionary', 'img2vec-neural', 'multi2vec-clip', 'ref2vec-centroid'
+    # Possible values: 'text2vec-cohere', 'text2vec-ollama', 'text2vec-openai', 'text2vec-huggingface', 'text2vec-transformers', 'text2vec-contextionary', 'img2vec-neural', 'multi2vec-clip', 'ref2vec-centroid'
     vectorizer: "text2vec-openai"
 )
 
@@ -72,9 +72,6 @@ client.schema.get(class_name: 'Question')
 
 # Get the schema
 client.schema.list()
-
-# Remove a class (and all data in the instances) from the schema.
-client.schema.delete(class_name: 'Question')
 
 # Update settings of an existing schema class.
 # Does not support modifying existing properties.
@@ -94,6 +91,52 @@ client.schema.add_property(
 
 # Inspect the shards of a class
 client.schema.shards(class_name: 'Question')
+
+# Remove a class (and all data in the instances) from the schema.
+client.schema.delete(class_name: 'Question')
+
+# Creating a new data object class in the schema while configuring the vectorizer on the schema and on individual properties (Ollama example)
+client.schema.create(
+    class_name: 'Question',
+    description: 'Information from a Jeopardy! question',
+    properties: [
+        {
+            "dataType": ["text"],
+            "description": "The question",
+            "name": "question"
+            # By default all properties are included in the vector
+        }, { 
+            "dataType": ["text"],
+            "description": "The answer",
+            "name": "answer",
+            "moduleConfig": {
+                "text2vec-ollama": {
+                    "skip": false,
+                    "vectorizePropertyName": true,
+                },
+            },
+        }, {
+            "dataType": ["text"],
+            "description": "The category",
+            "name": "category",
+            "indexFilterable": true,
+            "indexSearchable": false,
+            "moduleConfig": {
+                "text2vec-ollama": {
+                    "skip": true, # Don't include in the vector
+                },
+            },
+        }
+    ],
+    # Possible values: 'text2vec-cohere', 'text2vec-ollama', 'text2vec-openai', 'text2vec-huggingface', 'text2vec-transformers', 'text2vec-contextionary', 'img2vec-neural', 'multi2vec-clip', 'ref2vec-centroid'
+    vectorizer: "text2vec-ollama",
+    module_config: {
+        "text2vec-ollama": {
+            apiEndpoint: "http://localhost:11434",
+            model: "mxbai-embed-large",
+        },
+    },
+)
 ```
 
 ### Using the Objects endpoint
