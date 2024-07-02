@@ -10,11 +10,14 @@ Ruby wrapper for the Weaviate.io API.
 
 Part of the [Langchain.rb](https://github.com/andreibondarev/langchainrb) stack.
 
+Available for paid consulting engagements! [Email me](mailto:andrei@sourcelabs.io).
+
 ![Tests status](https://github.com/andreibondarev/weaviate-ruby/actions/workflows/ci.yml/badge.svg)
 [![Gem Version](https://badge.fury.io/rb/weaviate-ruby.svg)](https://badge.fury.io/rb/weaviate-ruby)
 [![Docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/gems/weaviate-ruby)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/andreibondarev/weaviate-ruby/blob/main/LICENSE.txt)
 [![](https://dcbadge.vercel.app/api/server/WDARp7J2n8?compact=true&style=flat)](https://discord.gg/WDARp7J2n8)
+[![X](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40rushing_andrei)](https://twitter.com/rushing_andrei)
 
 ## Installation
 
