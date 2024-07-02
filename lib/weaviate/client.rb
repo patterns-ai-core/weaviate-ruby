@@ -10,6 +10,7 @@ module Weaviate
     API_VERSION = "v1"
 
     API_KEY_HEADERS = {
+      ollama: "X-Ollama-Not-Used",
       openai: "X-OpenAI-Api-Key",
       azure_openai: "X-Azure-Api-Key",
       cohere: "X-Cohere-Api-Key",
