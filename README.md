@@ -128,7 +128,6 @@ client.schema.create(
             },
         }
     ],
-    # Possible values: 'text2vec-cohere', 'text2vec-ollama', 'text2vec-openai', 'text2vec-huggingface', 'text2vec-transformers', 'text2vec-contextionary', 'img2vec-neural', 'multi2vec-clip', 'ref2vec-centroid'
     vectorizer: "text2vec-ollama",
     module_config: {
         "text2vec-ollama": {
