@@ -296,6 +296,30 @@ client.live?
 client.ready?
 ```
 
+### Tenants
+
+Any schema can be multi-tenant
+
+```ruby
+client.schema.create(
+    # Other keys...
+    mutli_tenant: true, # passes { enabled: true } to weaviate
+)
+```
+
+You can also manually specify your multi tenancy configuration with a hash
+
+```ruby
+client.schema.create(
+    # Other keys...
+    mutli_tenant: { enabled: true, autoTenantCreation: true, autoTenantActivation: true },
+)
+```
+
+See [Weaviate Multi-tenancy operations](https://weaviate.io/developers/weaviate/manage-data/multi-tenancy). Note that the mix of snake case(used by Ruby) and lower camel case(used by Weaviate) is intentional as that hash is passed directly to Weaviate.
+
+All data methods in this library support an optional `tenant` argument which must be passed if multi-tenancy is enabled on the related collection
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
