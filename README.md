@@ -10,11 +10,14 @@ Ruby wrapper for the Weaviate.io API.
 
 Part of the [Langchain.rb](https://github.com/andreibondarev/langchainrb) stack.
 
+Available for paid consulting engagements! [Email me](mailto:andrei@sourcelabs.io).
+
 ![Tests status](https://github.com/andreibondarev/weaviate-ruby/actions/workflows/ci.yml/badge.svg)
 [![Gem Version](https://badge.fury.io/rb/weaviate-ruby.svg)](https://badge.fury.io/rb/weaviate-ruby)
 [![Docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/gems/weaviate-ruby)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/andreibondarev/weaviate-ruby/blob/main/LICENSE.txt)
 [![](https://dcbadge.vercel.app/api/server/WDARp7J2n8?compact=true&style=flat)](https://discord.gg/WDARp7J2n8)
+[![X](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40rushing_andrei)](https://twitter.com/rushing_andrei)
 
 ## Installation
 
@@ -337,6 +340,30 @@ client.live?
 # Live determines whether the application is ready to receive traffic. It can be used for Kubernetes readiness probe.
 client.ready?
 ```
+
+### Tenants
+
+Any schema can be multi-tenant
+
+```ruby
+client.schema.create(
+    # Other keys...
+    mutli_tenant: true, # passes { enabled: true } to weaviate
+)
+```
+
+You can also manually specify your multi tenancy configuration with a hash
+
+```ruby
+client.schema.create(
+    # Other keys...
+    mutli_tenant: { enabled: true, autoTenantCreation: true, autoTenantActivation: true },
+)
+```
+
+See [Weaviate Multi-tenancy operations](https://weaviate.io/developers/weaviate/manage-data/multi-tenancy). Note that the mix of snake case(used by Ruby) and lower camel case(used by Weaviate) is intentional as that hash is passed directly to Weaviate.
+
+All data methods in this library support an optional `tenant` argument which must be passed if multi-tenancy is enabled on the related collection
 
 ## Development
 
