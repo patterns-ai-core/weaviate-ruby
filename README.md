@@ -144,7 +144,7 @@ client.schema.create(
 ### Using the Objects endpoint
 ```ruby
 # Create a new data object. 
-client.objects.create(
+output = client.objects.create(
     class_name: 'Question',
     properties: {
         answer: '42',
@@ -152,6 +152,7 @@ client.objects.create(
         category: 'philosophy'
     }
 )
+uuid = output["id"]
 
 # Lists all data objects in reverse order of creation.
 client.objects.list()
@@ -159,19 +160,19 @@ client.objects.list()
 # Get a single data object.
 client.objects.get(
     class_name: "Question",
-    id: "uuid"
+    id: uuid
 )
 
 # Check if a data object exists.
 client.objects.exists?(
     class_name: "Question",
-    id: "uuid"
+    id: uuid
 )
 
 # Perform a partial update on an object based on its uuid.
 client.objects.update(
     class_name: "Question",
-    id: "uuid",
+    id: uuid,
     properties: {
         category: "simple-math"
     }
@@ -180,7 +181,7 @@ client.objects.update(
 # Replace an object based on its uuid.
 client.objects.replace(
     class_name: "Question",
-    id: "uuid",
+    id: uuid,
     properties: {
         question: "What does 6 times 7 equal to?",
         category: "math",
@@ -191,34 +192,35 @@ client.objects.replace(
 # Delete a single data object from Weaviate.
 client.objects.delete(
     class_name: "Question",
-    id: "uuid"
+    id: uuid
 )
 
 # Batch create objects
-client.objects.batch_create(objects: [
+output = client.objects.batch_create(objects: [
     {
         class: "Question",
         properties: {
-        answer: "42",
-        question: "What is the meaning of life?",
-        category: "philosophy"
+            answer: "42",
+            question: "What is the meaning of life?",
+            category: "philosophy"
         }
     }, {
         class: "Question",
         properties: {
-        answer: "42",
-        question: "What does 6 times 7 equal to?",
-        category: "math"
+            answer: "42",
+            question: "What does 6 times 7 equal to?",
+            category: "math"
         }
     }
 ])
+uuids = output.pluck("id")
 
 # Batch delete objects
 client.objects.batch_delete(
     class_name: "Question",
     where: {
-        valueString: "uuid",
-        operator: "Equal",
+        valueStringArray: uuids,
+        operator: "ContainsAny",
         path: ["id"]
     }
 )
