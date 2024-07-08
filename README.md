@@ -123,14 +123,17 @@ client.objects.exists?(
     id: "uuid"
 )
 
-# Delete a single data object from Weaviate.
-client.objects.delete(
+# Perform a partial update on an object based on its uuid.
+client.objects.update(
     class_name: "Question",
-    id: "uuid"
+    id: "uuid",
+    properties: {
+        category: "simple-math"
+    }
 )
 
-# Update a single data object based on its uuid.
-client.objects.update(
+# Replace an object based on its uuid.
+client.objects.replace(
     class_name: "Question",
     id: "uuid",
     properties: {
@@ -138,6 +141,12 @@ client.objects.update(
         category: "math",
         answer: "42"
     }
+)
+
+# Delete a single data object from Weaviate.
+client.objects.delete(
+    class_name: "Question",
+    id: "uuid"
 )
 
 # Batch create objects

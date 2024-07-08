@@ -122,7 +122,7 @@ module Weaviate
     )
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
-       response = client.connection.patch("#{PATH}/#{class_name}/#{id}") do |req|
+      response = client.connection.patch("#{PATH}/#{class_name}/#{id}") do |req|
         req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
 
         req.body = {}
