@@ -11,6 +11,16 @@
 - Allow the user to specify any options they want for multi-tenancy when creating a schema using their own hash
 - Allow Ollama vectorizer
 
+## [0.8.10] - 2024-01-25
+
+## [0.8.9] - 2023-10-10
+
+## [0.8.8] - 2023-10-10
+
+## [0.8.7] - 2023-09-11
+
+## [0.8.6] - 2023-08-10
+
 ## [0.8.5] - 2023-07-19
 - Add multi-tenancy support
 
