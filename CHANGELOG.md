@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [0.10.0] - 2024-07-08
+- Drop support for end-of-life Ruby versions. Ruby >= 3.1 required
+
 ## [0.9.0] - 2024-07-08
 
 - Add object.replace method which uses PUT which performs a complete object replacement
