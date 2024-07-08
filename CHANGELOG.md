@@ -1,6 +1,15 @@
 ## [Unreleased]
 
+## [0.9.0] - 2024-07-08
+
+- Add object.replace method which uses PUT which performs a complete object replacement
+
+### Breaking
+- Change the object.update method to use PATCH which only performs a partial update(previously performed a replacement)
+
 ## [0.8.11] - 2024-07-02
+- Allow the user to specify any options they want for multi-tenancy when creating a schema using their own hash
+- Allow Ollama vectorizer
 
 ## [0.8.10] - 2024-01-25
 

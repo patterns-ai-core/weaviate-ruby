@@ -132,13 +132,36 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, body: object_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:put)
+      allow_any_instance_of(Faraday::Connection).to receive(:patch)
         .with("objects/Question/123")
         .and_return(response)
     end
 
     it "returns the schema" do
       response = objects.update(
+        class_name: "Question",
+        id: "123",
+        properties: {
+          question: "What does 6 times 7 equal to?",
+          category: "math",
+          answer: "42"
+        }
+      )
+      expect(response.dig("class")).to eq("Question")
+    end
+  end
+
+  describe "#replace" do
+    let(:response) { OpenStruct.new(success?: true, body: object_fixture) }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:put)
+        .with("objects/Question/123")
+        .and_return(response)
+    end
+
+    it "returns the schema" do
+      response = objects.replace(
         class_name: "Question",
         id: "123",
         properties: {
