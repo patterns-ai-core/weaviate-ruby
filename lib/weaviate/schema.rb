@@ -45,7 +45,7 @@ module Weaviate
         req.body["properties"] = properties unless properties.nil?
         if multi_tenant.is_a?(Hash)
           req.body["multiTenancyConfig"] = multi_tenant
-        elsif multi_tenant.present?
+        elsif multi_tenant && !(multi_tenant.respond_to?(:empty?) && multi_tenant.empty?)
           req.body["multiTenancyConfig"] = {enabled: true}
         end
         req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
