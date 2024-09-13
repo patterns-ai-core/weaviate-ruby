@@ -89,15 +89,16 @@ RSpec.describe Weaviate::Schema do
         end
       end
 
-      it "sets up multiTenancyConfig with autoTenantCreation enabled" do
+      it "sets up multiTenancyConfig with autoTenantCreation and autoTenantActivation enabled" do
         schema.create(
           class_name: "Question",
           description: "Information from a Jeopardy! question",
           multi_tenant: true,
-          auto_tenant_creation: true
+          auto_tenant_creation: true,
+          auto_tenant_activation: true
         )
 
-        expect(@captured_request.body["multiTenancyConfig"]).to eq({ enabled: true, autoTenantCreation: true })
+        expect(@captured_request.body["multiTenancyConfig"]).to eq({ enabled: true, autoTenantCreation: true, autoTenantActivation: true })
       end
     end
   end

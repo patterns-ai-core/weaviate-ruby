@@ -28,6 +28,7 @@ module Weaviate
       properties: nil,
       multi_tenant: nil,
       auto_tenant_creation: nil,
+      auto_tenant_activation: nil,
       vector_index_type: nil,
       vector_index_config: nil,
       vectorizer: nil,
@@ -49,6 +50,7 @@ module Weaviate
         elsif !multi_tenant.nil?
           req.body["multiTenancyConfig"] = { enabled: true }
           req.body["multiTenancyConfig"].merge!(autoTenantCreation: true) unless auto_tenant_creation.nil?
+          req.body["multiTenancyConfig"].merge!(autoTenantActivation: true) unless auto_tenant_activation.nil?
         end
         req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
         req.body["replicationConfig"] = replication_config unless replication_config.nil?
