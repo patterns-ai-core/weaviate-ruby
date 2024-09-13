@@ -76,6 +76,30 @@ RSpec.describe Weaviate::Schema do
       )
       expect(response.dig("class")).to eq("Question")
     end
+
+    context "when auto_tenant_creation passed" do
+      before do
+        @captured_request = nil
+        allow_any_instance_of(Faraday::Connection).to receive(:post) do |_, path, &block|
+          expect(path).to eq("schema")
+          req = OpenStruct.new(body: {})
+          block.call(req)
+          @captured_request = req
+          response
+        end
+      end
+
+      it "sets up multiTenancyConfig with autoTenantCreation enabled" do
+        schema.create(
+          class_name: "Question",
+          description: "Information from a Jeopardy! question",
+          multi_tenant: true,
+          auto_tenant_creation: true
+        )
+
+        expect(@captured_request.body["multiTenancyConfig"]).to eq({ enabled: true, autoTenantCreation: true })
+      end
+    end
   end
 
   describe "#delete" do

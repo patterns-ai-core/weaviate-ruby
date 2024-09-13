@@ -50,7 +50,7 @@ module Weaviate
         req.body = {}
         req.body["class"] = class_name
         req.body["properties"] = properties
-        req.body["tenant"] = tenant unless tenant.blank?
+        req.body["tenant"] = tenant unless tenant.nil?
         req.body["id"] = id unless id.nil?
         req.body["vector"] = vector unless vector.nil?
       end
