@@ -26,9 +26,9 @@ module Weaviate
       class_name:,
       description: nil,
       properties: nil,
-      multi_tenant: nil,
-      auto_tenant_creation: nil,
-      auto_tenant_activation: nil,
+      multi_tenant: false,
+      auto_tenant_creation: false,
+      auto_tenant_activation: false,
       vector_index_type: nil,
       vector_index_config: nil,
       vectorizer: nil,
@@ -45,13 +45,15 @@ module Weaviate
         req.body["vectorizer"] = vectorizer unless vectorizer.nil?
         req.body["moduleConfig"] = module_config unless module_config.nil?
         req.body["properties"] = properties unless properties.nil?
-        if multi_tenant.is_a?(Hash)
-          req.body["multiTenancyConfig"] = multi_tenant
-        elsif !multi_tenant.nil?
-          req.body["multiTenancyConfig"] = { enabled: true }
-          req.body["multiTenancyConfig"].merge!(autoTenantCreation: true) unless auto_tenant_creation.nil?
-          req.body["multiTenancyConfig"].merge!(autoTenantActivation: true) unless auto_tenant_activation.nil?
+
+        if multi_tenant
+          req.body["multiTenancyConfig"] = {
+            enabled: multi_tenant,
+            autoTenantCreation: auto_tenant_creation,
+            autoTenantActivation: auto_tenant_activation
+          }
         end
+
         req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
         req.body["replicationConfig"] = replication_config unless replication_config.nil?
       end

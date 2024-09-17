@@ -98,7 +98,7 @@ RSpec.describe Weaviate::Schema do
           auto_tenant_activation: true
         )
 
-        expect(@captured_request.body["multiTenancyConfig"]).to eq({ enabled: true, autoTenantCreation: true, autoTenantActivation: true })
+        expect(@captured_request.body["multiTenancyConfig"]).to eq({enabled: true, autoTenantCreation: true, autoTenantActivation: true})
       end
     end
   end
