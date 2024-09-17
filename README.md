@@ -354,21 +354,14 @@ client.ready?
 
 ### Tenants
 
-Any schema can be multi-tenant
+Any schema can be multi-tenant by passing in these options for to `schema.create()`.
 
 ```ruby
 client.schema.create(
     # Other keys...
-    mutli_tenant: true, # passes { enabled: true } to weaviate
-)
-```
-
-You can also manually specify your multi tenancy configuration with a hash
-
-```ruby
-client.schema.create(
-    # Other keys...
-    mutli_tenant: { enabled: true, autoTenantCreation: true, autoTenantActivation: true },
+    multi_tenant: true,
+    auto_tenant_creation: true,
+    auto_tenant_activation: true
 )
 ```
 
