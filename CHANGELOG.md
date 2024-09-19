@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.9.1] - 2024-09-19
+
 ## [0.9.0] - 2024-07-08
 
 - Add object.replace method which uses PUT which performs a complete object replacement
