@@ -106,6 +106,7 @@ module Weaviate
         end
         faraday.request :json
         faraday.response :json, content_type: /\bjson$/
+        faraday.response :raise_error
         faraday.adapter adapter
 
         faraday.headers[API_KEY_HEADERS[model_service]] = model_service_api_key if model_service && model_service_api_key
