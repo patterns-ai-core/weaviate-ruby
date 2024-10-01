@@ -5,7 +5,7 @@ require "graphlient"
 
 module Weaviate
   class Client
-    attr_reader :url, :api_key, :model_service, :model_service_api_key, :adapter
+    attr_reader :url, :api_key, :model_service, :model_service_api_key, :adapter, :logger
 
     API_VERSION = "v1"
 
@@ -23,7 +23,8 @@ module Weaviate
       api_key: nil,
       model_service: nil,
       model_service_api_key: nil,
-      adapter: Faraday.default_adapter
+      adapter: Faraday.default_adapter,
+      logger: nil
     )
       validate_model_service!(model_service) unless model_service.nil?
 
@@ -32,6 +33,7 @@ module Weaviate
       @model_service = model_service
       @model_service_api_key = model_service_api_key
       @adapter = adapter
+      @logger = logger || Logger.new($stdout)
     end
 
     def oidc
@@ -105,6 +107,7 @@ module Weaviate
           faraday.request :authorization, :Bearer, api_key
         end
         faraday.request :json
+        faraday.response :logger, logger, {headers: true, bodies: true, errors: true}
         faraday.response :json, content_type: /\bjson$/
         faraday.response :raise_error
         faraday.adapter adapter
