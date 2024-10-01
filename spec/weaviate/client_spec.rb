@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe Weaviate::Client do
   let(:client) {
-    Weaviate::Client.new(
+    described_class.new(
       url: "http://localhost:8080",
       model_service: :openai,
       model_service_api_key: "123"
@@ -14,6 +14,16 @@ RSpec.describe Weaviate::Client do
   describe "#initialize" do
     it "creates a client" do
       expect(client).to be_a(Weaviate::Client)
+    end
+
+    it "accepts a custom logger" do
+      logger = Logger.new($stdout)
+      client = described_class.new(
+        url: "localhost:8080",
+        api_key: "123",
+        logger: logger
+      )
+      expect(client.logger).to eq(logger)
     end
   end
 

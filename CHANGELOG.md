@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [0.9.2] - 2024-10-01
+- Weaviate::Client constructor accepts customer logger: to be passed in
+
 ## [0.9.1] - 2024-09-19
 
 ## [0.9.0] - 2024-07-08
