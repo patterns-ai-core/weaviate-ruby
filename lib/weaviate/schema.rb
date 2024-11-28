@@ -34,7 +34,8 @@ module Weaviate
       vectorizer: nil,
       module_config: nil,
       inverted_index_config: nil,
-      replication_config: nil
+      replication_config: nil,
+      vector_config: nil        # added for named vector support
     )
       response = client.connection.post(PATH) do |req|
         req.body = {}
@@ -56,6 +57,7 @@ module Weaviate
 
         req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
         req.body["replicationConfig"] = replication_config unless replication_config.nil?
+        req.body["vectorConfig"] = vector_config unless vector_config.nil?  # Added for multi vector support
       end
 
       response.body
