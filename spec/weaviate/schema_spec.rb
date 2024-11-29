@@ -102,7 +102,7 @@ RSpec.describe Weaviate::Schema do
       end
     end
 
-    context "named vector config" do 
+    context "named vector config" do
       before do
         @captured_request = nil
         allow_any_instance_of(Faraday::Connection).to receive(:post) do |_, path, &block|
@@ -116,41 +116,39 @@ RSpec.describe Weaviate::Schema do
 
       it "sets up named vector config" do
         schema.create(
-          class_name: 'ArticleNV',
-          description: 'Articles with named vectors',
+          class_name: "ArticleNV",
+          description: "Articles with named vectors",
           properties: [
             {
-              "dataType": ["text"],
-              "name": "title"
+              dataType: ["text"],
+              name: "title"
             },
             {
-              "dataType": ["text"],
-              "name": "body"
+              dataType: ["text"],
+              name: "body"
             }
           ],
           vector_config: {
-            "title": {
-              "vectorizer": {
+            title: {
+              vectorizer: {
                 "text2vec-openai": {
-                  "properties": ["title"]
+                  properties: ["title"]
                 }
               },
-              "vectorIndexType": "hnsw",  # Adding vector index type
+              vectorIndexType: "hnsw"  # Adding vector index type
             },
-            "body": {
-              "vectorizer": {
+            body: {
+              vectorizer: {
                 "text2vec-openai": {
-                  "properties": ["body"]
+                  properties: ["body"]
                 }
               },
-              "vectorIndexType": "hnsw",  # Adding vector index type
+              vectorIndexType: "hnsw"  # Adding vector index type
             }
           }
-          
         )
 
-        expect(@captured_request.body["vectorConfig"]).to eq({:title=>{:vectorizer=>{:"text2vec-openai"=>{:properties=>["title"]}}, :vectorIndexType=>"hnsw"}, :body=>{:vectorizer=>{:"text2vec-openai"=>{:properties=>["body"]}}, :vectorIndexType=>"hnsw"}})
-
+        expect(@captured_request.body["vectorConfig"]).to eq({title: {vectorizer: {"text2vec-openai": {properties: ["title"]}}, vectorIndexType: "hnsw"}, body: {vectorizer: {"text2vec-openai": {properties: ["body"]}}, vectorIndexType: "hnsw"}})
       end
     end
   end
