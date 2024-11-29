@@ -139,6 +139,44 @@ client.schema.create(
         },
     },
 )
+
+# Creating named schemas
+
+client.schema.create(
+  class_name: 'ArticleNV',
+  description: 'Articles with named vectors',
+  properties: [
+    {
+      "dataType": ["text"],
+      "name": "title"
+    },
+    {
+      "dataType": ["text"],
+      "name": "body"
+    }
+  ],
+  # cannot use vectorizer and vector_config at the same time
+  # will need to specify for each property
+  vector_config: {
+    "title": {
+      "vectorizer": {
+        "text2vec-openai": {
+          "properties": ["title"]
+        }
+      },
+      "vectorIndexType": "hnsw",  # This is the default 
+    },
+    "body": {
+      "vectorizer": {
+        "text2vec-openai": {
+          "properties": ["body"]
+        }
+      },
+      "vectorIndexType": "hnsw",  # This is the default
+
+    }
+  }
+)
 ```
 
 ### Using the Objects endpoint
@@ -267,6 +305,17 @@ client.query.get(
 client.query.get class_name: 'Question', where: '{ operator: Like, valueText: "SCIENCE", path: ["category"] }', fields: 'answer question category', limit: "2"
 
 client.query.get class_name: 'Question', fields: 'answer question category _additional { id }', after: "3c5f7039-37f3-4244-b3e2-8f4a083e448d", limit: "1"
+
+# Named vector query - uses targetVectors
+query_title = client.query.get(
+  class_name: 'ArticleNV',
+  fields: 'title body _additional { id }',
+  near_text: '{
+    targetVectors: ["title"],
+    concepts: ["quantum computers advances"]
+  }',
+  limit: "2"
+)
 
 
 

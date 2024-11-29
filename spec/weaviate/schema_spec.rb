@@ -101,6 +101,56 @@ RSpec.describe Weaviate::Schema do
         expect(@captured_request.body["multiTenancyConfig"]).to eq({enabled: true, autoTenantCreation: true, autoTenantActivation: true})
       end
     end
+
+    context "named vector config" do
+      before do
+        @captured_request = nil
+        allow_any_instance_of(Faraday::Connection).to receive(:post) do |_, path, &block|
+          expect(path).to eq("schema")
+          req = OpenStruct.new(body: {})
+          block.call(req)
+          @captured_request = req
+          response
+        end
+      end
+
+      it "sets up named vector config" do
+        schema.create(
+          class_name: "ArticleNV",
+          description: "Articles with named vectors",
+          properties: [
+            {
+              dataType: ["text"],
+              name: "title"
+            },
+            {
+              dataType: ["text"],
+              name: "body"
+            }
+          ],
+          vector_config: {
+            title: {
+              vectorizer: {
+                "text2vec-openai": {
+                  properties: ["title"]
+                }
+              },
+              vectorIndexType: "hnsw"  # Adding vector index type
+            },
+            body: {
+              vectorizer: {
+                "text2vec-openai": {
+                  properties: ["body"]
+                }
+              },
+              vectorIndexType: "hnsw"  # Adding vector index type
+            }
+          }
+        )
+
+        expect(@captured_request.body["vectorConfig"]).to eq({title: {vectorizer: {"text2vec-openai": {properties: ["title"]}}, vectorIndexType: "hnsw"}, body: {vectorizer: {"text2vec-openai": {properties: ["body"]}}, vectorIndexType: "hnsw"}})
+      end
+    end
   end
 
   describe "#delete" do
