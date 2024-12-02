@@ -89,6 +89,39 @@ module Weaviate
       inverted_index_config: nil,
       replication_config: nil
     )
+      response = client.connection.patch("#{PATH}/#{class_name}") do |req|
+        req.body = {}
+        req.body["class"] = class_name unless class_name.nil?
+        req.body["description"] = description unless description.nil?
+        req.body["vectorIndexType"] = vector_index_type unless vector_index_type.nil?
+        req.body["vectorIndexConfig"] = vector_index_config unless vector_index_config.nil?
+        req.body["vectorizer"] = vectorizer unless vectorizer.nil?
+        req.body["moduleConfig"] = module_config unless module_config.nil?
+        req.body["properties"] = properties unless properties.nil?
+        req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
+        req.body["replicationConfig"] = replication_config unless replication_config.nil?
+      end
+
+      if response.success?
+      end
+      response.body
+    end
+
+    # Update settings of an existing schema class.
+    # TODO: Fix it.
+    # This endpoint keeps returning the following error:
+    # => {"error"=>[{"message"=>"properties cannot be updated through updating the class. Use the add property feature (e.g. \"POST /v1/schema/{className}/properties\") to add additional properties"}]}
+    def replace(
+      class_name:,
+      description: nil,
+      vector_index_type: nil,
+      vector_index_config: nil,
+      vectorizer: nil,
+      module_config: nil,
+      properties: nil,
+      inverted_index_config: nil,
+      replication_config: nil
+    )
       response = client.connection.put("#{PATH}/#{class_name}") do |req|
         req.body = {}
         req.body["class"] = class_name unless class_name.nil?
