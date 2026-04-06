@@ -59,7 +59,7 @@ GEM
     racc (1.7.3)
     rainbow (3.1.1)
     rake (13.0.6)
-    rdiscount (2.2.7.1)
+    rdiscount (2.2.7.4)
     regexp_parser (2.7.0)
     rexml (3.4.2)
     rspec (3.11.0)
