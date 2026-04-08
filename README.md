@@ -44,11 +44,11 @@ client = Weaviate::Client.new(
 )
 ```
 
-### Using the Schema endpoints
+### Using the Collections endpoints
 
 ```ruby
-# Creating a new data object class in the schema
-client.schema.create(
+# Creating a new collection
+client.collections.create(
     class_name: 'Question',
     description: 'Information from a Jeopardy! question',
     properties: [
@@ -70,21 +70,21 @@ client.schema.create(
     vectorizer: "text2vec-openai"
 )
 
-# Get a single class from the schema
-client.schema.get(class_name: 'Question')
+# Get a single collection
+client.collections.get(class_name: 'Question')
 
-# Get the schema
-client.schema.list()
+# List all collections
+client.collections.list()
 
-# Update settings of an existing schema class.
+# Update settings of an existing collection.
 # Does not support modifying existing properties.
-client.schema.update(
+client.collections.update(
     class_name: 'Question',
     description: 'Information from a Wheel of Fortune question'
 )
 
 # Adding a new property
-client.schema.add_property(
+client.collections.add_property(
     class_name: 'Question',
     property: {
         "dataType": ["boolean"],
@@ -92,14 +92,14 @@ client.schema.add_property(
     }
 )
 
-# Inspect the shards of a class
-client.schema.shards(class_name: 'Question')
+# Inspect the shards of a collection
+client.collections.shards(class_name: 'Question')
 
-# Remove a class (and all data in the instances) from the schema.
-client.schema.delete(class_name: 'Question')
+# Remove a collection (and all data in the instances).
+client.collections.delete(class_name: 'Question')
 
-# Creating a new data object class in the schema while configuring the vectorizer on the schema and on individual properties (Ollama example)
-client.schema.create(
+# Creating a new collection while configuring the vectorizer on the collection and on individual properties (Ollama example)
+client.collections.create(
     class_name: 'Question',
     description: 'Information from a Jeopardy! question',
     properties: [
@@ -140,9 +140,9 @@ client.schema.create(
     },
 )
 
-# Creating named schemas
+# Creating collections with named vectors
 
-client.schema.create(
+client.collections.create(
   class_name: 'ArticleNV',
   description: 'Articles with named vectors',
   properties: [
@@ -403,10 +403,10 @@ client.ready?
 
 ### Tenants
 
-Any schema can be multi-tenant by passing in these options for to `schema.create()`.
+Any collection can be multi-tenant by passing in these options for to `collections.create()`.
 
 ```ruby
-client.schema.create(
+client.collections.create(
     # Other keys...
     multi_tenant: true,
     auto_tenant_creation: true,

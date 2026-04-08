@@ -27,9 +27,15 @@ RSpec.describe Weaviate::Client do
     end
   end
 
+  describe "#collections" do
+    it "returns a collection client" do
+      expect(client.collections).to be_a(Weaviate::Collection)
+    end
+  end
+
   describe "#schema" do
-    it "returns a schema client" do
-      expect(client.schema).to be_a(Weaviate::Schema)
+    it "returns a collection client (backward compatibility)" do
+      expect(client.schema).to be_a(Weaviate::Collection)
     end
   end
 
