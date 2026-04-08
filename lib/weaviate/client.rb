@@ -40,8 +40,12 @@ module Weaviate
       Weaviate::OIDC.new(client: self).get
     end
 
+    def collections
+      @collections ||= Weaviate::Collection.new(client: self)
+    end
+
     def schema
-      @schema ||= Weaviate::Schema.new(client: self)
+      @schema ||= collections
     end
 
     def meta

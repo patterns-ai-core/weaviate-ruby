@@ -6,6 +6,7 @@ module Weaviate
   autoload :Base, "weaviate/base"
   autoload :Client, "weaviate/client"
   autoload :Error, "weaviate/error"
+  autoload :Collection, "weaviate/collection"
   autoload :Schema, "weaviate/schema"
   autoload :Meta, "weaviate/meta"
   autoload :Objects, "weaviate/objects"
