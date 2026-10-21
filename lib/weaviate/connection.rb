@@ -33,15 +33,16 @@ module Weaviate
       422 => UnprocessableEntityError
     }
 
-    FILTERED_HEADERS = /authorization|api-key/i
+    FILTERED_HEADERS = /authorization|api-key|token|secret|access-key/i
 
-    attr_reader :url, :headers, :logger, :proxy
+    attr_reader :url, :headers, :logger, :proxy, :timeouts
 
-    def initialize(url:, headers: {}, logger: nil, proxy: nil)
+    def initialize(url:, headers: {}, logger: nil, proxy: nil, open_timeout: nil, read_timeout: nil, write_timeout: nil)
       @url = url.chomp("/")
       @headers = headers
       @logger = logger
       @proxy = proxy && URI(proxy)
+      @timeouts = {open_timeout: open_timeout, read_timeout: read_timeout, write_timeout: write_timeout}.compact
     end
 
     METHODS.each_key do |method|
@@ -87,7 +88,8 @@ module Weaviate
         proxy&.port,
         proxy&.user,
         proxy&.password,
-        use_ssl: uri.scheme == "https"
+        use_ssl: uri.scheme == "https",
+        **timeouts
       ) do |http|
         http.request(http_request)
       end

@@ -235,6 +235,19 @@ RSpec.describe Weaviate::Collections do
       )
       expect(response.dig("class")).to eq("Question")
     end
+
+    it "sends tenants as JSON, accepting names or hashes" do
+      captured_request = nil
+      allow_any_instance_of(Weaviate::Connection).to receive(:post) do |_, _path, &block|
+        captured_request = OpenStruct.new(body: nil)
+        block.call(captured_request)
+        response
+      end
+
+      schema.add_tenants(class_name: "Question", tenants: ['quote"d', {name: "cold", activityStatus: "COLD"}])
+
+      expect(captured_request.body).to eq([{name: 'quote"d'}, {name: "cold", activityStatus: "COLD"}])
+    end
   end
 
   describe "#list_tenants"

@@ -50,9 +50,31 @@ RSpec.describe Weaviate::Client do
 
       expect(client.connection.url).to eq("http://localhost:8080/v1")
       expect(client.connection.headers).to eq(
+        "User-Agent" => "weaviate-ruby/#{Weaviate::VERSION}",
         "Authorization" => "Bearer abc",
         "X-OpenAI-Api-Key" => "123"
       )
+    end
+
+    it "merges custom headers over the defaults" do
+      client = described_class.new(
+        url: "http://localhost:8080",
+        model_service: :google_studio,
+        model_service_api_key: "goog",
+        headers: {"X-Aws-Access-Key" => "aws-access", "X-Aws-Secret-Key" => "aws-secret"}
+      )
+
+      expect(client.connection.headers).to include(
+        "X-Goog-Studio-Api-Key" => "goog",
+        "X-Aws-Access-Key" => "aws-access",
+        "X-Aws-Secret-Key" => "aws-secret"
+      )
+    end
+
+    it "passes the timeouts" do
+      client = described_class.new(url: "http://localhost:8080", open_timeout: 2, read_timeout: 30)
+
+      expect(client.connection.timeouts).to eq(open_timeout: 2, read_timeout: 30)
     end
 
     it "accepts a proxy" do

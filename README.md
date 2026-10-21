@@ -8,14 +8,14 @@
 
 Ruby wrapper for the Weaviate.io API.
 
-Part of the [Langchain.rb](https://github.com/andreibondarev/langchainrb) stack.
+Part of the [Langchain.rb](https://github.com/patterns-ai-core/langchainrb) stack.
 
 Available for paid consulting engagements! [Email me](mailto:andrei@sourcelabs.io).
 
-![Tests status](https://github.com/andreibondarev/weaviate-ruby/actions/workflows/ci.yml/badge.svg)
+![Tests status](https://github.com/patterns-ai-core/weaviate-ruby/actions/workflows/ci.yml/badge.svg)
 [![Gem Version](https://badge.fury.io/rb/weaviate-ruby.svg)](https://badge.fury.io/rb/weaviate-ruby)
 [![Docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/gems/weaviate-ruby)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/andreibondarev/weaviate-ruby/blob/main/LICENSE.txt)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/patterns-ai-core/weaviate-ruby/blob/main/LICENSE.txt)
 [![](https://dcbadge.vercel.app/api/server/WDARp7J2n8?compact=true&style=flat)](https://discord.gg/WDARp7J2n8)
 [![X](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40rushing_andrei)](https://twitter.com/rushing_andrei)
 
@@ -39,9 +39,11 @@ require 'weaviate'
 client = Weaviate::Client.new(
     url: 'https://some-endpoint.weaviate.network',  # Replace with your endpoint
     api_key: '', # Weaviate API key
-    model_service: :openai, # Service that will be used to generate vectors. Possible values: :openai, :azure_openai, :cohere, :huggingface, :google_palm
-    model_service_api_key: 'xxxxxxx', # Either OpenAI, Azure OpenAI, Cohere, Hugging Face or Google PaLM api key
+    model_service: :openai, # Service used to generate vectors, see Weaviate::Client::API_KEY_HEADERS for all values (e.g. :openai, :cohere, :google_studio, :voyageai, :mistral)
+    model_service_api_key: 'xxxxxxx', # API key for the model service
+    headers: { 'X-Aws-Access-Key' => '...', 'X-Aws-Secret-Key' => '...' }, # Optional. Extra headers, e.g. for providers that need several keys or a custom base URL
     proxy: 'http://user:pass@localhost:8888', # Optional. Defaults to the http_proxy/https_proxy env vars
+    open_timeout: 5, read_timeout: 30, write_timeout: 30, # Optional. In seconds, default to 60
     logger: Logger.new($stdout) # Optional. Requests and responses are logged with API keys filtered out
 )
 ```
@@ -274,12 +276,35 @@ client.objects.batch_delete(
         path: ["id"]
     }
 )
+
+# References: add, replace and delete cross-references on a reference property
+client.objects.add_reference(class_name: "Post", id: post_id, property: "ofCategory", to_class_name: "Category", to_id: category_id)
+client.objects.replace_references(class_name: "Post", id: post_id, property: "ofCategory", to: [{ class_name: "Category", id: category_id }])
+client.objects.delete_reference(class_name: "Post", id: post_id, property: "ofCategory", to_class_name: "Category", to_id: category_id)
+
+# Batch create references
+client.objects.batch_create_references(references: [
+    { from_class_name: "Post", from_id: post_id, property: "ofCategory", to_class_name: "Category", to_id: category_id }
+])
 ```
 
 ### Querying
 
 #### Get{}
+
+Arguments such as `where`, `near_text` or `sort` can be passed either as raw GraphQL strings or as Ruby hashes/arrays.
+Hashes are converted to GraphQL: strings are quoted and escaped (safe for user input), and symbols are sent as enums.
+`operator`, `order` and `fusionType` values are always sent as enums.
+
 ```ruby
+client.query.get(
+    class_name: 'Question',
+    fields: 'question category',
+    where: { path: ['category'], operator: :Equal, valueText: params[:category] },
+    sort: [{ path: ['category'], order: :asc }],
+    limit: 10
+)
+
 near_text = '{ concepts: ["biology"] }'
 near_vector = '{ vector: [0.1, 0.2, ...] }'
 sort_obj = '{ path: ["category"], order: desc }'
@@ -327,6 +352,14 @@ client.query.get(
     limit: 5
 )
 
+# Grouping results by a property (requires a near_* or hybrid search)
+client.query.get(
+    class_name: 'Question',
+    fields: '_additional { group { groupedBy { value } count hits { question _additional { id distance } } } }',
+    near_text: { concepts: ['biology'] },
+    group_by: { path: ['category'], groups: 3, objectsPerGroup: 2 }
+)
+
 # Named vector query - uses targetVectors
 query_title = client.query.get(
   class_name: 'ArticleNV',
@@ -351,9 +384,22 @@ client.query.aggs(
     object_limit: "10",
     near_text: "{ concepts: [\"knowledge\"] }"
 )
+
+# Aggregating over hybrid search results, limiting the number of groups returned
+client.query.aggs(
+    class_name: "Question",
+    fields: 'groupedBy { value } meta { count }',
+    group_by: ["category"],
+    with_hybrid: { query: "knowledge", alpha: 0.5 },
+    object_limit: 100,
+    limit: 5
+)
 ```
 
 #### Explore{}
+
+**Deprecated.** Weaviate disables `Explore` when more than one vectorizer module is enabled, which is the case on a default install of recent versions and on Weaviate Cloud. Use `query.get` on each collection instead.
+
 ```ruby
 client.query.explore(
     fields: 'className',
@@ -404,21 +450,85 @@ client.backups.restore_status(
     backend: "filesystem",
     id: "my-first-backup"
 )
+
+# List backups, newest first by default
+client.backups.list(backend: "filesystem", order: "desc")
+
+# Cancel a backup or restore that is in progress
+client.backups.cancel(backend: "filesystem", id: "my-first-backup")
+client.backups.cancel_restore(backend: "filesystem", id: "my-first-backup")
+
+# Cloud storage backends accept a config, plus bucket/path when reading the status
+client.backups.create(backend: "s3", id: "my-backup", config: { Bucket: "my-bucket", Path: "backups" })
+client.backups.get(backend: "s3", id: "my-backup", bucket: "my-bucket", path: "backups")
 ```
 
 ### Nodes
 ```ruby
 client.nodes
+
+# Include shard details, optionally for one collection or shard
+client.nodes(output: "verbose", class_name: "Question")
+```
+
+### Aliases
+```ruby
+# Point an alias at a collection, then query or write through the alias
+client.aliases.create(alias_name: "Questions", class_name: "QuestionV1")
+client.query.get(class_name: "Questions", fields: "question")
+
+# Switch the alias to a new collection, e.g. after a re-index
+client.aliases.update(alias_name: "Questions", class_name: "QuestionV2")
+
+client.aliases.list
+client.aliases.get(alias_name: "Questions")
+client.aliases.delete(alias_name: "Questions")
+```
+
+### Users and roles
+
+These require [RBAC](https://docs.weaviate.io/deploy/configuration/authorization) to be enabled.
+
+```ruby
+client.users.own_info
+
+# Database users
+response = client.users.create(user_id: "reporting")
+response["apikey"] # The new user's API key
+client.users.list
+client.users.get(user_id: "reporting")
+client.users.rotate_key(user_id: "reporting")
+client.users.deactivate(user_id: "reporting", revoke_key: true)
+client.users.activate(user_id: "reporting")
+client.users.delete(user_id: "reporting")
+
+# Roles and permissions
+client.roles.create(
+    name: "question-reader",
+    permissions: [
+        { action: "read_data", data: { collection: "Question" } },
+        { action: "read_collections", collections: { collection: "*" } } # Required for GraphQL queries
+    ]
+)
+client.roles.add_permissions(name: "question-reader", permissions: [{ action: "read_tenants", tenants: { collection: "Question" } }])
+client.roles.has_permission?(name: "question-reader", permission: { action: "read_data", data: { collection: "Question" } })
+client.roles.list
+
+# Assigning roles to users (user_type: "db" or "oidc") and OIDC groups
+client.users.assign_roles(user_id: "reporting", roles: ["question-reader"])
+client.users.roles(user_id: "reporting")
+client.roles.user_assignments(name: "question-reader")
+client.users.revoke_roles(user_id: "reporting", roles: ["question-reader"])
+client.groups.assign_roles(group_id: "analysts", roles: ["question-reader"])
 ```
 
 ### Health
 ```ruby
-# Live determines whether the application is alive. It can be used for Kubernetes liveness probe.
+# Whether the application is alive. It can be used for Kubernetes liveness probe.
 client.live?
-```
 
-```ruby
-# Live determines whether the application is ready to receive traffic. It can be used for Kubernetes readiness probe.
+# Whether the application is ready to receive traffic. It can be used for Kubernetes readiness probe.
+# Both return false when Weaviate responds with an error or cannot be reached.
 client.ready?
 ```
 
@@ -437,7 +547,18 @@ client.collections.create(
 
 See [Weaviate Multi-tenancy operations](https://weaviate.io/developers/weaviate/manage-data/multi-tenancy). Note that the mix of snake case(used by Ruby) and lower camel case(used by Weaviate) is intentional as that hash is passed directly to Weaviate.
 
-All data methods in this library support an optional `tenant` argument which must be passed if multi-tenancy is enabled on the related collection
+All data methods in this library support an optional `tenant` argument which must be passed if multi-tenancy is enabled on the related collection.
+
+```ruby
+# Tenants can be added by name, or with an activity status
+client.collections.add_tenants(class_name: "Question", tenants: ["tenant-a", { name: "tenant-b", activityStatus: "COLD" }])
+client.collections.update_tenants(class_name: "Question", tenants: [{ name: "tenant-b", activityStatus: "HOT" }])
+client.collections.get_tenant(class_name: "Question", tenant: "tenant-b")
+client.collections.tenant_exists?(class_name: "Question", tenant: "tenant-b")
+client.collections.list_tenants(class_name: "Question")
+client.collections.remove_tenants(class_name: "Question", tenants: ["tenant-a"])
+client.collections.shards(class_name: "Question", tenant: "tenant-b")
+```
 
 ## Development
 
@@ -447,7 +568,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/andreibondarev/weaviate.
+Bug reports and pull requests are welcome on GitHub at https://github.com/patterns-ai-core/weaviate-ruby.
 
 ## License
 

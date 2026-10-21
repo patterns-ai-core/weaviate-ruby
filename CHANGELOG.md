@@ -10,6 +10,20 @@
 - Fix `objects.exists?` raising on missing objects instead of returning `false`
 - Fix `objects.batch_create(tenant:)` being ignored by Weaviate: the tenant is now set on each object
 - Fix `query.aggs` failing with "groupBy must be a list, instead got: <nil>" when `group_by`/`object_limit` are not passed
+- `live?`/`ready?` return `false` when Weaviate responds with an error (e.g. 503 while starting) or cannot be reached, instead of raising
+- `collections.add_tenants` sends a JSON array and accepts hashes with `activityStatus`
+- Query arguments (`where:`, `near_text:`, `sort:`, ...) can be Ruby hashes/arrays, serialized to GraphQL with strings escaped. Raw GraphQL strings still work
+- Add API key headers for all model providers supported by Weaviate 1.38 (e.g. `:anthropic`, `:google_studio`, `:google_vertex`, `:mistral`, `:voyageai`, `:jinaai`, `:nvidia`)
+- Add `headers:`, `open_timeout:`, `read_timeout:` and `write_timeout:` options to `Weaviate::Client.new`
+- Add cross-references: `objects.add_reference`, `replace_references`, `delete_reference` and `batch_create_references`
+- Add `group_by:` to `query.get`, and `limit:`/`with_hybrid:` to `query.aggs`
+- Add `collections.update_tenants`, `get_tenant`, `tenant_exists?`, and `tenant:` to `collections.shards`
+- Add `backups.list`, `cancel`, `cancel_restore`, `config:` on create/restore and `bucket:`/`path:` on status reads
+- Add `client.nodes(output:, class_name:, shard_name:)`
+- Add `client.aliases`, `client.users`, `client.roles` and `client.groups`
+- Deprecate `query.explore`: Weaviate disables Explore when more than one vectorizer module is enabled
+- Add RBS signatures for the public API
+- Minimum Ruby version is now 2.7
 
 ### Breaking
 - HTTP errors are raised as `Weaviate::HTTPError` subclasses (e.g. `Weaviate::ResourceNotFound`, `Weaviate::ServerError`) instead of `Faraday::Error` subclasses. Network failures raise `Weaviate::ConnectionFailed`/`Weaviate::TimeoutError`

@@ -72,7 +72,7 @@ RSpec.describe Weaviate::Objects do
     it "returns false when the object does not exist" do
       allow_any_instance_of(Weaviate::Connection).to receive(:head)
         .with("objects/Question/456")
-        .and_raise(Weaviate::ResourceNotFound.new(response: OpenStruct.new(status: 404)))
+        .and_raise(Weaviate::ResourceNotFound.new(response: Weaviate::Connection::Response.new(status: 404)))
 
       expect(objects.exists?(class_name: "Question", id: "456")).to eq(false)
     end

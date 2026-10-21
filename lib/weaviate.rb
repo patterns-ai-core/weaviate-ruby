@@ -18,4 +18,8 @@ module Weaviate
   autoload :Health, "weaviate/health"
   autoload :Classifications, "weaviate/classifications"
   autoload :Backups, "weaviate/backups"
+  autoload :Aliases, "weaviate/aliases"
+  autoload :Users, "weaviate/users"
+  autoload :Roles, "weaviate/roles"
+  autoload :Groups, "weaviate/groups"
 end

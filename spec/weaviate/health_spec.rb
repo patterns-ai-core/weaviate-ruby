@@ -36,4 +36,22 @@ RSpec.describe Weaviate::Health do
       expect(client.ready?).to eq(true)
     end
   end
+
+  describe "when Weaviate is not ready or unreachable" do
+    it "returns false on an error response" do
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
+        .and_raise(Weaviate::ServerError.new(response: Weaviate::Connection::Response.new(status: 503)))
+
+      expect(client.ready?).to eq(false)
+      expect(client.live?).to eq(false)
+    end
+
+    it "returns false when the connection fails" do
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
+        .and_raise(Weaviate::ConnectionFailed, "Connection refused")
+
+      expect(client.ready?).to eq(false)
+      expect(client.live?).to eq(false)
+    end
+  end
 end

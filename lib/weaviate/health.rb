@@ -4,14 +4,23 @@ module Weaviate
   class Health < Base
     PATH = ".well-known"
 
+    # Whether Weaviate is alive. Returns false when it responds with an error or cannot be reached.
     def live?
-      response = client.connection.get("#{PATH}/live")
-      response.status == 200
+      check("#{PATH}/live")
     end
 
+    # Whether Weaviate is ready to receive traffic. Returns false when it responds with an error
+    # (e.g. 503 while starting up) or cannot be reached.
     def ready?
-      response = client.connection.get("#{PATH}/ready")
-      response.status == 200
+      check("#{PATH}/ready")
+    end
+
+    private
+
+    def check(path)
+      client.connection.get(path).status == 200
+    rescue Weaviate::HTTPError, Weaviate::ConnectionFailed
+      false
     end
   end
 end

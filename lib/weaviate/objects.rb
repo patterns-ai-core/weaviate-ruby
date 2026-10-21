@@ -179,11 +179,7 @@ module Weaviate
         req.params["tenant"] = tenant unless tenant.nil?
       end
 
-      if response.success?
-        response.body.empty?
-      else
-        response.body
-      end
+      response.body.empty?
     end
 
     def batch_delete(
@@ -216,6 +212,92 @@ module Weaviate
       response.body
     end
 
+    # Add a reference to an object's reference property.
+    def add_reference(
+      class_name:,
+      id:,
+      property:,
+      to_class_name:,
+      to_id:,
+      tenant: nil,
+      consistency_level: nil
+    )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
+      response = client.connection.post(reference_path(class_name, id, property)) do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
+        req.body = {beacon: beacon(to_class_name, to_id)}
+      end
+
+      response.success?
+    end
+
+    # Replace all references of an object's reference property.
+    # @param to [Array<Hash>] The objects to reference, e.g. [{ class_name: "Category", id: "..." }]
+    def replace_references(
+      class_name:,
+      id:,
+      property:,
+      to:,
+      tenant: nil,
+      consistency_level: nil
+    )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
+      response = client.connection.put(reference_path(class_name, id, property)) do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
+        req.body = to.map { |ref| {beacon: beacon(ref.fetch(:class_name), ref.fetch(:id))} }
+      end
+
+      response.success?
+    end
+
+    # Delete a reference from an object's reference property.
+    def delete_reference(
+      class_name:,
+      id:,
+      property:,
+      to_class_name:,
+      to_id:,
+      tenant: nil,
+      consistency_level: nil
+    )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
+      response = client.connection.delete(reference_path(class_name, id, property)) do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+        req.params["tenant"] = tenant unless tenant.nil?
+        req.body = {beacon: beacon(to_class_name, to_id)}
+      end
+
+      response.success?
+    end
+
+    # Batch create references.
+    # @param references [Array<Hash>] e.g. [{ from_class_name: "Post", from_id: "...", property: "ofCategory", to_class_name: "Category", to_id: "...", tenant: nil }]
+    def batch_create_references(
+      references:,
+      consistency_level: nil
+    )
+      validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
+      response = client.connection.post("batch/references") do |req|
+        req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+        req.body = references.map do |ref|
+          body = {
+            from: "#{beacon(ref.fetch(:from_class_name), ref.fetch(:from_id))}/#{ref.fetch(:property)}",
+            to: beacon(ref.fetch(:to_class_name), ref.fetch(:to_id))
+          }
+          body[:tenant] = ref[:tenant] unless ref[:tenant].nil?
+          body
+        end
+      end
+
+      response.body
+    end
+
     # Validate a data object
     def validate(
       class_name:,
@@ -229,14 +311,18 @@ module Weaviate
         req.body["id"] = id unless id.nil?
       end
 
-      if response.success?
-        response.body.empty?
-      else
-        response.body
-      end
+      response.body.empty?
     end
 
     private
+
+    def reference_path(class_name, id, property)
+      "#{PATH}/#{class_name}/#{id}/references/#{property}"
+    end
+
+    def beacon(class_name, id)
+      "weaviate://localhost/#{class_name}/#{id}"
+    end
 
     def validate_consistency_level!(consistency_level)
       unless %w[ONE QUORUM ALL].include?(consistency_level.to_s.upcase)
