@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 module Weaviate
-  class Schema < Base
+  # Manage collections (formerly known as "classes" in the Weaviate schema).
+  class Collections < Base
     PATH = "schema"
 
-    # Dumps the current Weaviate schema. The result contains an array of objects.
+    # Lists all collections in the Weaviate schema.
     def list
       response = client.connection.get(PATH)
       response.body
     end
 
-    # Get a single class from the schema
+    # Get a single collection
     def get(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}")
 
@@ -21,7 +22,7 @@ module Weaviate
       end
     end
 
-    # Create a new data object class in the schema.
+    # Create a new collection.
     def create(
       class_name:,
       description: nil,
@@ -35,7 +36,7 @@ module Weaviate
       module_config: nil,
       inverted_index_config: nil,
       replication_config: nil,
-      vector_config: nil        # added for named vector support
+      vector_config: nil
     )
       response = client.connection.post(PATH) do |req|
         req.body = {}
@@ -57,13 +58,13 @@ module Weaviate
 
         req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
         req.body["replicationConfig"] = replication_config unless replication_config.nil?
-        req.body["vectorConfig"] = vector_config unless vector_config.nil?  # Added for multi vector support
+        req.body["vectorConfig"] = vector_config unless vector_config.nil?
       end
 
       response.body
     end
 
-    # Remove a class (and all data in the instances) from the schema.
+    # Remove a collection (and all data in the instances).
     def delete(class_name:)
       response = client.connection.delete("#{PATH}/#{class_name}")
 
@@ -74,10 +75,9 @@ module Weaviate
       end
     end
 
-    # Update settings of an existing schema class.
-    # TODO: Fix it.
-    # This endpoint keeps returning the following error:
-    # => {"error"=>[{"message"=>"properties cannot be updated through updating the class. Use the add property feature (e.g. \"POST /v1/schema/{className}/properties\") to add additional properties"}]}
+    # Update settings of an existing collection.
+    # Weaviate replaces the whole collection definition on update, so the provided settings are merged
+    # into the current definition. Immutable settings and existing properties cannot be changed.
     def update(
       class_name:,
       description: nil,
@@ -87,27 +87,29 @@ module Weaviate
       module_config: nil,
       properties: nil,
       inverted_index_config: nil,
-      replication_config: nil
+      replication_config: nil,
+      vector_config: nil
     )
+      changes = {
+        "description" => description,
+        "vectorIndexType" => vector_index_type,
+        "vectorIndexConfig" => vector_index_config,
+        "vectorizer" => vectorizer,
+        "moduleConfig" => module_config,
+        "properties" => properties,
+        "invertedIndexConfig" => inverted_index_config,
+        "replicationConfig" => replication_config,
+        "vectorConfig" => vector_config
+      }.compact
+
       response = client.connection.put("#{PATH}/#{class_name}") do |req|
-        req.body = {}
-        req.body["class"] = class_name unless class_name.nil?
-        req.body["description"] = description unless description.nil?
-        req.body["vectorIndexType"] = vector_index_type unless vector_index_type.nil?
-        req.body["vectorIndexConfig"] = vector_index_config unless vector_index_config.nil?
-        req.body["vectorizer"] = vectorizer unless vectorizer.nil?
-        req.body["moduleConfig"] = module_config unless module_config.nil?
-        req.body["properties"] = properties unless properties.nil?
-        req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
-        req.body["replicationConfig"] = replication_config unless replication_config.nil?
+        req.body = deep_merge(get(class_name: class_name), JSON.parse(changes.to_json))
       end
 
-      if response.success?
-      end
       response.body
     end
 
-    # Adds one or more tenants to a class.
+    # Adds one or more tenants to a collection.
     def add_tenants(
       class_name:,
       tenants:
@@ -119,13 +121,13 @@ module Weaviate
       response.body
     end
 
-    # List tenants of a class.
+    # List tenants of a collection.
     def list_tenants(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}/tenants")
       response.body
     end
 
-    # Remove one or more tenants from a class.
+    # Remove one or more tenants from a collection.
     def remove_tenants(
       class_name:,
       tenants:
@@ -140,7 +142,7 @@ module Weaviate
       response.body
     end
 
-    # Add a property to an existing schema class.
+    # Add a property to an existing collection.
     def add_property(
       class_name:,
       property:
@@ -154,7 +156,7 @@ module Weaviate
       response.body
     end
 
-    # Inspect the shards of a class
+    # Inspect the shards of a collection
     def shards(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}/shards")
       response.body if response.success?
@@ -173,10 +175,19 @@ module Weaviate
 
     private
 
+    def deep_merge(current, changes)
+      current.merge(changes) do |_key, current_value, new_value|
+        (current_value.is_a?(Hash) && new_value.is_a?(Hash)) ? deep_merge(current_value, new_value) : new_value
+      end
+    end
+
     def validate_status!(status)
       unless %w[READONLY READY].include?(status.to_s.upcase)
         raise ArgumentError, 'status must be either "READONLY" or "READY"'
       end
     end
   end
+
+  # @deprecated Weaviate now refers to schema classes as collections. Use {Collections} instead.
+  Schema = Collections
 end

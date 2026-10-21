@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Weaviate::Schema do
+RSpec.describe Weaviate::Collections do
   let(:client) {
     Weaviate::Client.new(
       url: "http://localhost:8080",
@@ -10,16 +10,21 @@ RSpec.describe Weaviate::Schema do
       model_service_api_key: "123"
     )
   }
-  let(:schema) { client.schema }
+  let(:schema) { client.collections }
   let(:class_fixture) { JSON.parse(File.read("spec/fixtures/class.json")) }
   let(:classes_fixture) { JSON.parse(File.read("spec/fixtures/classes.json")) }
   let(:shard_fixture) { JSON.parse(File.read("spec/fixtures/shards.json")) }
+
+  it "is aliased as Weaviate::Schema for backwards compatibility" do
+    expect(Weaviate::Schema).to eq(described_class)
+    expect(client.schema).to be(client.collections)
+  end
 
   describe "#list" do
     let(:response) { OpenStruct.new(body: classes_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("schema")
         .and_return(response)
     end
@@ -33,7 +38,7 @@ RSpec.describe Weaviate::Schema do
     let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("schema/Question")
         .and_return(response)
     end
@@ -48,7 +53,7 @@ RSpec.describe Weaviate::Schema do
     let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post)
+      allow_any_instance_of(Weaviate::Connection).to receive(:post)
         .with("schema")
         .and_return(response)
     end
@@ -80,7 +85,7 @@ RSpec.describe Weaviate::Schema do
     context "when auto_tenant_creation passed" do
       before do
         @captured_request = nil
-        allow_any_instance_of(Faraday::Connection).to receive(:post) do |_, path, &block|
+        allow_any_instance_of(Weaviate::Connection).to receive(:post) do |_, path, &block|
           expect(path).to eq("schema")
           req = OpenStruct.new(body: {})
           block.call(req)
@@ -105,7 +110,7 @@ RSpec.describe Weaviate::Schema do
     context "named vector config" do
       before do
         @captured_request = nil
-        allow_any_instance_of(Faraday::Connection).to receive(:post) do |_, path, &block|
+        allow_any_instance_of(Weaviate::Connection).to receive(:post) do |_, path, &block|
           expect(path).to eq("schema")
           req = OpenStruct.new(body: {})
           block.call(req)
@@ -157,7 +162,7 @@ RSpec.describe Weaviate::Schema do
     let(:response) { OpenStruct.new(success?: true, body: "") }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:delete)
+      allow_any_instance_of(Weaviate::Connection).to receive(:delete)
         .with("schema/Question")
         .and_return(response)
     end
@@ -170,20 +175,45 @@ RSpec.describe Weaviate::Schema do
   end
 
   describe "#update" do
-    let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
+    let(:current) {
+      {
+        "class" => "Question",
+        "description" => "Information from a Jeopardy! question",
+        "invertedIndexConfig" => {"indexTimestamps" => true, "bm25" => {"b" => 0.75, "k1" => 1.2}},
+        "properties" => [{"name" => "question", "dataType" => ["text"]}]
+      }
+    }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:put)
+      @captured_request = nil
+
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("schema/Question")
-        .and_return(response)
+        .and_return(OpenStruct.new(success?: true, body: current))
+
+      allow_any_instance_of(Weaviate::Connection).to receive(:put) do |_, path, &block|
+        expect(path).to eq("schema/Question")
+        req = OpenStruct.new(body: nil)
+        block.call(req)
+        @captured_request = req
+        OpenStruct.new(success?: true, body: req.body)
+      end
     end
 
-    it "returns the schema" do
+    it "merges the changes into the current definition" do
       response = schema.update(
         class_name: "Question",
-        description: "Information from a Wheel of Fortune question"
+        description: "Information from a Wheel of Fortune question",
+        inverted_index_config: {bm25: {b: 0.8}}
       )
+
       expect(response.dig("class")).to eq("Question")
+      expect(@captured_request.body).to eq(
+        "class" => "Question",
+        "description" => "Information from a Wheel of Fortune question",
+        "invertedIndexConfig" => {"indexTimestamps" => true, "bm25" => {"b" => 0.8, "k1" => 1.2}},
+        "properties" => [{"name" => "question", "dataType" => ["text"]}]
+      )
     end
   end
 
@@ -193,7 +223,7 @@ RSpec.describe Weaviate::Schema do
     let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post)
+      allow_any_instance_of(Weaviate::Connection).to receive(:post)
         .with("schema/Question/tenants")
         .and_return(response)
     end
@@ -215,7 +245,7 @@ RSpec.describe Weaviate::Schema do
     let(:response) { OpenStruct.new(success?: true, body: shard_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("schema/Question/shards")
         .and_return(response)
     end
@@ -229,7 +259,7 @@ RSpec.describe Weaviate::Schema do
     let(:response) { OpenStruct.new(success?: true, body: shard_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:put)
+      allow_any_instance_of(Weaviate::Connection).to receive(:put)
         .with("schema/Question/shards/xyz123")
         .and_return(response)
     end

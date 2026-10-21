@@ -15,7 +15,7 @@ RSpec.describe Weaviate::Health do
 
   describe "#live" do
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with(".well-known/live")
         .and_return(response)
     end
@@ -27,7 +27,7 @@ RSpec.describe Weaviate::Health do
 
   describe "#ready" do
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with(".well-known/ready")
         .and_return(response)
     end

@@ -40,15 +40,27 @@ client = Weaviate::Client.new(
     url: 'https://some-endpoint.weaviate.network',  # Replace with your endpoint
     api_key: '', # Weaviate API key
     model_service: :openai, # Service that will be used to generate vectors. Possible values: :openai, :azure_openai, :cohere, :huggingface, :google_palm
-    model_service_api_key: 'xxxxxxx' # Either OpenAI, Azure OpenAI, Cohere, Hugging Face or Google PaLM api key
+    model_service_api_key: 'xxxxxxx', # Either OpenAI, Azure OpenAI, Cohere, Hugging Face or Google PaLM api key
+    proxy: 'http://user:pass@localhost:8888', # Optional. Defaults to the http_proxy/https_proxy env vars
+    logger: Logger.new($stdout) # Optional. Requests and responses are logged with API keys filtered out
 )
 ```
 
-### Using the Schema endpoints
+### Errors
+
+All errors inherit from `Weaviate::Error`:
+
+- `Weaviate::HTTPError` - Weaviate responded with a 4xx/5xx status (`#status` and `#body` are available). Subclasses: `Weaviate::BadRequestError`, `Weaviate::UnauthorizedError`, `Weaviate::ForbiddenError`, `Weaviate::ResourceNotFound`, `Weaviate::ConflictError`, `Weaviate::UnprocessableEntityError`, `Weaviate::ServerError`
+- `Weaviate::GraphQLError` - a GraphQL query returned errors (`#errors` is available)
+- `Weaviate::ConnectionFailed` / `Weaviate::TimeoutError` - Weaviate could not be reached
+
+### Using the Collections endpoints
+
+`client.collections` was previously called `client.schema`, which still works as an alias.
 
 ```ruby
-# Creating a new data object class in the schema
-client.schema.create(
+# Creating a new collection
+client.collections.create(
     class_name: 'Question',
     description: 'Information from a Jeopardy! question',
     properties: [
@@ -70,21 +82,21 @@ client.schema.create(
     vectorizer: "text2vec-openai"
 )
 
-# Get a single class from the schema
-client.schema.get(class_name: 'Question')
+# Get a single collection
+client.collections.get(class_name: 'Question')
 
-# Get the schema
-client.schema.list()
+# List all collections
+client.collections.list()
 
-# Update settings of an existing schema class.
+# Update settings of an existing collection.
 # Does not support modifying existing properties.
-client.schema.update(
+client.collections.update(
     class_name: 'Question',
     description: 'Information from a Wheel of Fortune question'
 )
 
 # Adding a new property
-client.schema.add_property(
+client.collections.add_property(
     class_name: 'Question',
     property: {
         "dataType": ["boolean"],
@@ -92,14 +104,14 @@ client.schema.add_property(
     }
 )
 
-# Inspect the shards of a class
-client.schema.shards(class_name: 'Question')
+# Inspect the shards of a collection
+client.collections.shards(class_name: 'Question')
 
-# Remove a class (and all data in the instances) from the schema.
-client.schema.delete(class_name: 'Question')
+# Remove a collection (and all data in the instances).
+client.collections.delete(class_name: 'Question')
 
-# Creating a new data object class in the schema while configuring the vectorizer on the schema and on individual properties (Ollama example)
-client.schema.create(
+# Creating a new collection while configuring the vectorizer on the collection and on individual properties (Ollama example)
+client.collections.create(
     class_name: 'Question',
     description: 'Information from a Jeopardy! question',
     properties: [
@@ -140,9 +152,9 @@ client.schema.create(
     },
 )
 
-# Creating named schemas
+# Creating collections with named vectors
 
-client.schema.create(
+client.collections.create(
   class_name: 'ArticleNV',
   description: 'Articles with named vectors',
   properties: [
@@ -306,6 +318,15 @@ client.query.get class_name: 'Question', where: '{ operator: Like, valueText: "S
 
 client.query.get class_name: 'Question', fields: 'answer question category _additional { id }', after: "3c5f7039-37f3-4244-b3e2-8f4a083e448d", limit: "1"
 
+# Limiting results by distance or certainty: pass `distance` or `certainty` along with `near_text`, `near_vector`
+# or `near_object`, and request them back via `_additional`.
+client.query.get(
+    class_name: 'Question',
+    fields: 'question _additional { distance certainty }',
+    near_text: '{ concepts: ["biology"], distance: 0.6 }', # or certainty: 0.7
+    limit: 5
+)
+
 # Named vector query - uses targetVectors
 query_title = client.query.get(
   class_name: 'ArticleNV',
@@ -403,10 +424,10 @@ client.ready?
 
 ### Tenants
 
-Any schema can be multi-tenant by passing in these options for to `schema.create()`.
+Any collection can be multi-tenant by passing in these options to `collections.create()`.
 
 ```ruby
-client.schema.create(
+client.collections.create(
     # Other keys...
     multi_tenant: true,
     auto_tenant_creation: true,

@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require "faraday"
-require "graphlient"
+require "logger"
 
 module Weaviate
   class Client
-    attr_reader :url, :api_key, :model_service, :model_service_api_key, :adapter, :logger
+    attr_reader :url, :api_key, :model_service, :model_service_api_key, :proxy, :logger
 
     API_VERSION = "v1"
 
@@ -18,21 +17,30 @@ module Weaviate
       google_palm: "X-Palm-Api-Key"
     }
 
+    # @param url [String] The Weaviate instance URL
+    # @param api_key [String] The Weaviate API key
+    # @param model_service [Symbol] The service used to generate vectors, one of the API_KEY_HEADERS keys
+    # @param model_service_api_key [String] The API key for the model service
+    # @param proxy [String] Proxy URL, e.g. "http://user:pass@localhost:8888". Defaults to the http_proxy/https_proxy env vars.
+    # @param logger [Logger] Logger for requests and responses
+    # @param adapter [Object] Deprecated and ignored, Faraday is no longer used
     def initialize(
       url:,
       api_key: nil,
       model_service: nil,
       model_service_api_key: nil,
-      adapter: Faraday.default_adapter,
-      logger: nil
+      proxy: nil,
+      logger: nil,
+      adapter: nil
     )
       validate_model_service!(model_service) unless model_service.nil?
+      warn "[weaviate-ruby] The `adapter:` option is deprecated and ignored, Faraday is no longer used." unless adapter.nil?
 
       @url = url
       @api_key = api_key
       @model_service = model_service
       @model_service_api_key = model_service_api_key
-      @adapter = adapter
+      @proxy = proxy
       @logger = logger || Logger.new($stdout)
     end
 
@@ -40,8 +48,13 @@ module Weaviate
       Weaviate::OIDC.new(client: self).get
     end
 
+    def collections
+      @collections ||= Weaviate::Collections.new(client: self)
+    end
+
+    # @deprecated Weaviate now refers to schema classes as collections. Use {#collections} instead.
     def schema
-      @schema ||= Weaviate::Schema.new(client: self)
+      collections
     end
 
     def meta
@@ -81,42 +94,26 @@ module Weaviate
     end
 
     def graphql
-      headers = {}
-
-      if model_service && model_service_api_key
-        headers[API_KEY_HEADERS[model_service]] = model_service_api_key
-      end
-
-      if api_key
-        headers["Authorization"] = "Bearer #{api_key}"
-      end
-
-      @graphql ||= Graphlient::Client.new(
-        "#{url}/#{API_VERSION}/graphql",
-        headers: headers,
-        http_options: {
-          read_timeout: 20,
-          write_timeout: 30
-        }
-      )
+      @graphql ||= Weaviate::GraphQL.new(client: self)
     end
 
     def connection
-      @connection ||= Faraday.new(url: "#{url}/#{API_VERSION}/") do |faraday|
-        if api_key
-          faraday.request :authorization, :Bearer, api_key
-        end
-        faraday.request :json
-        faraday.response :logger, logger, {headers: true, bodies: true, errors: true}
-        faraday.response :json, content_type: /\bjson$/
-        faraday.response :raise_error
-        faraday.adapter adapter
-
-        faraday.headers[API_KEY_HEADERS[model_service]] = model_service_api_key if model_service && model_service_api_key
-      end
+      @connection ||= Weaviate::Connection.new(
+        url: "#{url}/#{API_VERSION}",
+        headers: headers,
+        logger: logger,
+        proxy: proxy
+      )
     end
 
     private
+
+    def headers
+      headers = {}
+      headers["Authorization"] = "Bearer #{api_key}" if api_key
+      headers[API_KEY_HEADERS[model_service]] = model_service_api_key if model_service && model_service_api_key
+      headers
+    end
 
     def validate_model_service!(model_service)
       unless API_KEY_HEADERS.key?(model_service)

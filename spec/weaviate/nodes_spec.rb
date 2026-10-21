@@ -17,7 +17,7 @@ RSpec.describe Weaviate::Nodes do
     }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("nodes")
         .and_return(response)
     end
