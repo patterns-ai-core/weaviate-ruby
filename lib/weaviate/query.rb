@@ -25,7 +25,8 @@ module Weaviate
       near_object: nil,
       with_hybrid: nil,
       bm25: nil,
-      ask: nil
+      ask: nil,
+      group_by: nil
     )
       data = client.graphql.execute(
         get_query(
@@ -44,7 +45,8 @@ module Weaviate
           near_object: near_object,
           with_hybrid: with_hybrid,
           bm25: bm25,
-          ask: ask
+          ask: ask,
+          group_by: group_by
         )
       )
       data.dig("Get", class_name)
@@ -60,7 +62,9 @@ module Weaviate
       near_vector: nil,
       near_image: nil,
       near_object: nil,
-      group_by: nil
+      group_by: nil,
+      limit: nil,
+      with_hybrid: nil
     )
       data = client.graphql.execute(
         aggs_query(
@@ -73,12 +77,15 @@ module Weaviate
           near_vector: near_vector,
           near_image: near_image,
           near_object: near_object,
-          group_by: group_by
+          group_by: group_by,
+          limit: limit,
+          with_hybrid: with_hybrid
         )
       )
       data.dig("Aggregate", class_name)
     end
 
+    # @deprecated Weaviate disables Explore when more than one vectorizer module is enabled.
     def explore(
       fields:,
       after: nil,
@@ -91,6 +98,12 @@ module Weaviate
       near_image: nil,
       near_object: nil
     )
+      unless @explore_deprecation_warned
+        warn "[weaviate-ruby] query.explore is deprecated: Weaviate disables Explore when more than one vectorizer module is enabled, " \
+          "which is the default on recent versions and on Weaviate Cloud. Use query.get on each collection instead."
+        @explore_deprecation_warned = true
+      end
+
       # `after` is accepted for backwards compatibility, but Explore does not support it
       data = client.graphql.execute(
         explore_query(
@@ -157,7 +170,8 @@ module Weaviate
       with_hybrid: nil,
       bm25: nil,
       ask: nil,
-      sort: nil
+      sort: nil,
+      group_by: nil
     )
       arguments = build_arguments(
         after: string_value(after),
@@ -173,7 +187,8 @@ module Weaviate
         bm25: bm25,
         ask: ask,
         where: where,
-        sort: sort
+        sort: sort,
+        groupBy: group_by
       )
 
       <<~GRAPHQL
@@ -197,16 +212,20 @@ module Weaviate
       near_vector: nil,
       near_image: nil,
       near_object: nil,
-      group_by: nil
+      group_by: nil,
+      limit: nil,
+      with_hybrid: nil
     )
       arguments = build_arguments(
         objectLimit: integer_value(object_limit),
+        limit: integer_value(limit),
         groupBy: group_by && Array(group_by).map(&:to_s).to_json,
         tenant: string_value(tenant),
         nearText: near_text,
         nearVector: near_vector,
         nearImage: near_image,
         nearObject: near_object,
+        hybrid: with_hybrid,
         where: where
       )
 

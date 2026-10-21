@@ -23,6 +23,9 @@ jobs:
       - name: StandardRb check
         run: bundle exec standardrb --format progress --format github --color
 
+      - name: RBS signatures
+        run: bundle exec rbs -r logger -r uri -r net-http -r json -I sig validate
+
   tests:
     runs-on: ubuntu-latest
     strategy:

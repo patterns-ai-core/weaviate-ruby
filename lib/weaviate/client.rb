@@ -93,9 +93,10 @@ module Weaviate
       @meta.get
     end
 
-    def nodes
+    # @see Weaviate::Nodes#list
+    def nodes(**options)
       @nodes ||= Weaviate::Nodes.new(client: self)
-      @nodes.list
+      @nodes.list(**options)
     end
 
     def live?
@@ -122,6 +123,22 @@ module Weaviate
 
     def query
       @query ||= Weaviate::Query.new(client: self)
+    end
+
+    def aliases
+      @aliases ||= Weaviate::Aliases.new(client: self)
+    end
+
+    def users
+      @users ||= Weaviate::Users.new(client: self)
+    end
+
+    def roles
+      @roles ||= Weaviate::Roles.new(client: self)
+    end
+
+    def groups
+      @groups ||= Weaviate::Groups.new(client: self)
     end
 
     def graphql

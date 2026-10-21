@@ -14,4 +14,5 @@ gem "ostruct" # used in specs, no longer a default gem on Ruby >= 3.5
 # Linting runs on the latest Ruby only (standard requires Ruby >= 3.0). Skip with BUNDLE_WITHOUT=lint.
 group :lint do
   gem "standard", "~> 1.57"
+  gem "rbs", "~> 3.8"
 end

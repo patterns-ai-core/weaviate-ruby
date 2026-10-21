@@ -1,4 +1,422 @@
 module Weaviate
   VERSION: String
-  # See the writing guide of rbs: https://github.com/ruby/rbs#guides
+
+  # Parsed JSON returned by Weaviate
+  type json = untyped
+
+  # A raw GraphQL string, or a Ruby value serialized to GraphQL
+  type graphql_argument = String | Hash[untyped, untyped] | Array[untyped]
+
+  type consistency_level = String | Symbol
+
+  class Error < StandardError
+  end
+
+  class ConnectionFailed < Error
+  end
+
+  class TimeoutError < ConnectionFailed
+  end
+
+  class HTTPError < Error
+    attr_reader response: Connection::Response?
+
+    def initialize: (?String? message, ?response: Connection::Response?) -> void
+    def status: () -> Integer?
+    def body: () -> json
+  end
+
+  class ClientError < HTTPError
+  end
+
+  class BadRequestError < ClientError
+  end
+
+  class UnauthorizedError < ClientError
+  end
+
+  class ForbiddenError < ClientError
+  end
+
+  class ResourceNotFound < ClientError
+  end
+
+  class ConflictError < ClientError
+  end
+
+  class UnprocessableEntityError < ClientError
+  end
+
+  class ServerError < HTTPError
+  end
+
+  class GraphQLError < Error
+    attr_reader errors: Array[Hash[String, untyped]]
+
+    def initialize: (Array[Hash[String, untyped]] errors) -> void
+  end
+
+  class Client
+    API_VERSION: String
+    API_KEY_HEADERS: Hash[Symbol, String]
+
+    attr_reader url: String
+    attr_reader api_key: String?
+    attr_reader model_service: Symbol?
+    attr_reader model_service_api_key: String?
+    attr_reader headers: Hash[String, String]
+    attr_reader proxy: String?
+    attr_reader logger: Logger
+    attr_reader open_timeout: Numeric?
+    attr_reader read_timeout: Numeric?
+    attr_reader write_timeout: Numeric?
+
+    def initialize: (
+      url: String,
+      ?api_key: String?,
+      ?model_service: Symbol?,
+      ?model_service_api_key: String?,
+      ?headers: Hash[String, String],
+      ?proxy: String?,
+      ?logger: Logger?,
+      ?open_timeout: Numeric?,
+      ?read_timeout: Numeric?,
+      ?write_timeout: Numeric?,
+      ?adapter: untyped
+    ) -> void
+
+    def oidc: () -> json
+    def collections: () -> Collections
+    def schema: () -> Collections
+    def meta: () -> json
+    def nodes: (?output: String?, ?class_name: String?, ?shard_name: String?) -> json
+    def live?: () -> bool
+    def ready?: () -> bool
+    def backups: () -> Backups
+    def classifications: () -> Classifications
+    def objects: () -> Objects
+    def query: () -> Query
+    def aliases: () -> Aliases
+    def users: () -> Users
+    def roles: () -> Roles
+    def groups: () -> Groups
+    def graphql: () -> GraphQL
+    def connection: () -> Connection
+  end
+
+  class Connection
+    class Request < Struct[untyped]
+      attr_accessor params: Hash[String, untyped]
+      attr_accessor headers: Hash[String, String]
+      attr_accessor body: untyped
+    end
+
+    class Response < Struct[untyped]
+      attr_accessor status: Integer
+      attr_accessor reason_phrase: String
+      attr_accessor headers: Hash[String, Array[String]]
+      attr_accessor body: json
+
+      def success?: () -> bool
+    end
+
+    attr_reader url: String
+    attr_reader headers: Hash[String, String]
+    attr_reader logger: Logger?
+    attr_reader proxy: URI::Generic?
+    attr_reader timeouts: Hash[Symbol, Numeric]
+
+    def initialize: (
+      url: String,
+      ?headers: Hash[String, String],
+      ?logger: Logger?,
+      ?proxy: String?,
+      ?open_timeout: Numeric?,
+      ?read_timeout: Numeric?,
+      ?write_timeout: Numeric?
+    ) -> void
+
+    def get: (String path) ?{ (Request) -> void } -> Response
+    def head: (String path) ?{ (Request) -> void } -> Response
+    def post: (String path) ?{ (Request) -> void } -> Response
+    def put: (String path) ?{ (Request) -> void } -> Response
+    def patch: (String path) ?{ (Request) -> void } -> Response
+    def delete: (String path) ?{ (Request) -> void } -> Response
+  end
+
+  class Base
+    attr_reader client: Client
+
+    def initialize: (client: Client) -> void
+  end
+
+  class GraphQL < Base
+    def execute: (String query) -> json
+  end
+
+  class Collections < Base
+    def list: () -> json
+    def get: (class_name: String) -> json
+
+    def create: (
+      class_name: String,
+      ?description: String?,
+      ?properties: Array[Hash[untyped, untyped]]?,
+      ?multi_tenant: bool,
+      ?auto_tenant_creation: bool,
+      ?auto_tenant_activation: bool,
+      ?vector_index_type: String?,
+      ?vector_index_config: Hash[untyped, untyped]?,
+      ?vectorizer: String?,
+      ?module_config: Hash[untyped, untyped]?,
+      ?inverted_index_config: Hash[untyped, untyped]?,
+      ?replication_config: Hash[untyped, untyped]?,
+      ?vector_config: Hash[untyped, untyped]?
+    ) -> json
+
+    def update: (
+      class_name: String,
+      ?description: String?,
+      ?vector_index_type: String?,
+      ?vector_index_config: Hash[untyped, untyped]?,
+      ?vectorizer: String?,
+      ?module_config: Hash[untyped, untyped]?,
+      ?properties: Array[Hash[untyped, untyped]]?,
+      ?inverted_index_config: Hash[untyped, untyped]?,
+      ?replication_config: Hash[untyped, untyped]?,
+      ?vector_config: Hash[untyped, untyped]?
+    ) -> json
+
+    def delete: (class_name: String) -> bool
+    def add_property: (class_name: String, property: Hash[untyped, untyped]) -> json
+    def add_tenants: (class_name: String, tenants: Array[String | Hash[untyped, untyped]]) -> json
+    def update_tenants: (class_name: String, tenants: Array[String | Hash[untyped, untyped]]) -> json
+    def get_tenant: (class_name: String, tenant: String) -> json
+    def tenant_exists?: (class_name: String, tenant: String) -> bool
+    def list_tenants: (class_name: String) -> json
+    def remove_tenants: (class_name: String, tenants: Array[String]) -> json
+    def shards: (class_name: String, ?tenant: String?) -> json
+    def update_shard_status: (class_name: String, shard_name: String, status: String) -> json
+  end
+
+  Schema: singleton(Collections)
+
+  class Objects < Base
+    def list: (
+      ?class_name: String?,
+      ?limit: Integer?,
+      ?tenant: String?,
+      ?offset: Integer?,
+      ?after: String?,
+      ?include: String?,
+      ?sort: String?,
+      ?order: String?
+    ) -> json
+
+    def create: (
+      class_name: String,
+      properties: Hash[untyped, untyped],
+      ?tenant: String?,
+      ?consistency_level: consistency_level?,
+      ?id: String?,
+      ?vector: Array[Float]?
+    ) -> json
+
+    def batch_create: (objects: Array[Hash[untyped, untyped]], ?consistency_level: consistency_level?, ?tenant: String?) -> json
+    def get: (class_name: String, id: String, ?include: String?, ?consistency_level: consistency_level?, ?tenant: String?) -> json
+    def exists?: (class_name: String, id: String, ?consistency_level: consistency_level?, ?tenant: String?) -> bool
+
+    def update: (
+      class_name: String,
+      id: String,
+      properties: Hash[untyped, untyped],
+      ?vector: Array[Float]?,
+      ?tenant: String?,
+      ?consistency_level: consistency_level?
+    ) -> json
+
+    def replace: (
+      class_name: String,
+      id: String,
+      properties: Hash[untyped, untyped],
+      ?vector: Array[Float]?,
+      ?tenant: String?,
+      ?consistency_level: consistency_level?
+    ) -> json
+
+    def delete: (class_name: String, id: String, ?consistency_level: consistency_level?, ?tenant: String?) -> bool
+
+    def batch_delete: (
+      class_name: String,
+      where: Hash[untyped, untyped],
+      ?consistency_level: consistency_level?,
+      ?output: String?,
+      ?dry_run: bool?,
+      ?tenant: String?
+    ) -> json
+
+    def add_reference: (
+      class_name: String,
+      id: String,
+      property: String,
+      to_class_name: String,
+      to_id: String,
+      ?tenant: String?,
+      ?consistency_level: consistency_level?
+    ) -> bool
+
+    def replace_references: (
+      class_name: String,
+      id: String,
+      property: String,
+      to: Array[{ class_name: String, id: String }],
+      ?tenant: String?,
+      ?consistency_level: consistency_level?
+    ) -> bool
+
+    def delete_reference: (
+      class_name: String,
+      id: String,
+      property: String,
+      to_class_name: String,
+      to_id: String,
+      ?tenant: String?,
+      ?consistency_level: consistency_level?
+    ) -> bool
+
+    def batch_create_references: (references: Array[Hash[Symbol, String]], ?consistency_level: consistency_level?) -> json
+    def validate: (class_name: String, properties: Hash[untyped, untyped], ?id: String?) -> bool
+  end
+
+  class Query < Base
+    def get: (
+      class_name: String,
+      fields: String,
+      ?after: String?,
+      ?tenant: String?,
+      ?limit: Integer | String | nil,
+      ?autocut: Integer | String | nil,
+      ?offset: Integer | String | nil,
+      ?sort: graphql_argument?,
+      ?where: graphql_argument?,
+      ?near_text: graphql_argument?,
+      ?near_vector: graphql_argument?,
+      ?near_image: graphql_argument?,
+      ?near_object: graphql_argument?,
+      ?with_hybrid: graphql_argument?,
+      ?bm25: graphql_argument?,
+      ?ask: graphql_argument?,
+      ?group_by: graphql_argument?
+    ) -> json
+
+    def aggs: (
+      class_name: String,
+      ?fields: String?,
+      ?tenant: String?,
+      ?where: graphql_argument?,
+      ?object_limit: Integer | String | nil,
+      ?near_text: graphql_argument?,
+      ?near_vector: graphql_argument?,
+      ?near_image: graphql_argument?,
+      ?near_object: graphql_argument?,
+      ?group_by: Array[String] | String | nil,
+      ?limit: Integer | String | nil,
+      ?with_hybrid: graphql_argument?
+    ) -> json
+
+    # @deprecated
+    def explore: (
+      fields: String,
+      ?after: String?,
+      ?limit: Integer | String | nil,
+      ?offset: Integer | String | nil,
+      ?sort: graphql_argument?,
+      ?where: graphql_argument?,
+      ?near_text: graphql_argument?,
+      ?near_vector: graphql_argument?,
+      ?near_image: graphql_argument?,
+      ?near_object: graphql_argument?
+    ) -> json
+  end
+
+  class Backups < Base
+    def list: (backend: String, ?order: String?) -> json
+    def create: (backend: String, id: String, ?include: Array[String]?, ?exclude: Array[String]?, ?config: Hash[untyped, untyped]?) -> json
+    def get: (backend: String, id: String, ?bucket: String?, ?path: String?) -> json
+    def cancel: (backend: String, id: String, ?bucket: String?, ?path: String?) -> bool
+    def restore: (backend: String, id: String, ?include: Array[String]?, ?exclude: Array[String]?, ?config: Hash[untyped, untyped]?) -> json
+    def restore_status: (backend: String, id: String, ?bucket: String?, ?path: String?) -> json
+    def cancel_restore: (backend: String, id: String, ?bucket: String?, ?path: String?) -> bool
+  end
+
+  class Classifications < Base
+    def get: (id: String) -> json
+
+    def create: (
+      class_name: String,
+      type: String,
+      ?classify_properties: Array[String]?,
+      ?based_on_properties: Array[String]?,
+      ?settings: Hash[untyped, untyped]?,
+      ?filters: Hash[untyped, untyped]?
+    ) -> json
+  end
+
+  class Nodes < Base
+    def list: (?output: String?, ?class_name: String?, ?shard_name: String?) -> json
+  end
+
+  class Health < Base
+    def live?: () -> bool
+    def ready?: () -> bool
+  end
+
+  class Meta < Base
+    def get: () -> json
+  end
+
+  class OIDC < Base
+    def get: () -> json
+  end
+
+  class Aliases < Base
+    def list: (?class_name: String?) -> json
+    def create: (alias_name: String, class_name: String) -> json
+    def get: (alias_name: String) -> json
+    def update: (alias_name: String, class_name: String) -> json
+    def delete: (alias_name: String) -> bool
+  end
+
+  class Users < Base
+    def own_info: () -> json
+    def list: (?include_last_used_time: bool?) -> json
+    def get: (user_id: String, ?include_last_used_time: bool?) -> json
+    def create: (user_id: String) -> json
+    def delete: (user_id: String) -> bool
+    def activate: (user_id: String) -> bool
+    def deactivate: (user_id: String, ?revoke_key: bool?) -> bool
+    def rotate_key: (user_id: String) -> json
+    def roles: (user_id: String, ?user_type: String, ?include_full_roles: bool?) -> json
+    def assign_roles: (user_id: String, roles: Array[String] | String, ?user_type: String) -> bool
+    def revoke_roles: (user_id: String, roles: Array[String] | String, ?user_type: String) -> bool
+  end
+
+  class Roles < Base
+    def list: () -> json
+    def get: (name: String) -> json
+    def create: (name: String, permissions: Array[Hash[untyped, untyped]]) -> bool
+    def delete: (name: String) -> bool
+    def add_permissions: (name: String, permissions: Array[Hash[untyped, untyped]]) -> bool
+    def remove_permissions: (name: String, permissions: Array[Hash[untyped, untyped]]) -> bool
+    def has_permission?: (name: String, permission: Hash[untyped, untyped]) -> bool
+    def user_assignments: (name: String) -> json
+    def group_assignments: (name: String) -> json
+  end
+
+  class Groups < Base
+    def list: () -> json
+    def roles: (group_id: String, ?include_full_roles: bool?) -> json
+    def assign_roles: (group_id: String, roles: Array[String] | String) -> bool
+    def revoke_roles: (group_id: String, roles: Array[String] | String) -> bool
+  end
 end

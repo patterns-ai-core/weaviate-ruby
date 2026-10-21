@@ -31,6 +31,9 @@ GEM
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.0.6)
+    rbs (3.10.4)
+      logger
+      tsort
     rdiscount (2.2.7.4)
     regexp_parser (2.13.1)
     rspec (3.11.0)
@@ -77,6 +80,7 @@ GEM
     standard-performance (1.9.0)
       lint_roller (~> 1.1)
       rubocop-performance (~> 1.26.0)
+    tsort (0.2.0)
     unicode-display_width (3.3.0)
       unicode-emoji (~> 4.3)
     unicode-emoji (4.3.0)
@@ -95,6 +99,7 @@ DEPENDENCIES
   ostruct
   pry-byebug (~> 3.9)
   rake (~> 13.0)
+  rbs (~> 3.8)
   rdiscount
   rspec (~> 3.0)
   standard (~> 1.57)

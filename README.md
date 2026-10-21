@@ -276,6 +276,16 @@ client.objects.batch_delete(
         path: ["id"]
     }
 )
+
+# References: add, replace and delete cross-references on a reference property
+client.objects.add_reference(class_name: "Post", id: post_id, property: "ofCategory", to_class_name: "Category", to_id: category_id)
+client.objects.replace_references(class_name: "Post", id: post_id, property: "ofCategory", to: [{ class_name: "Category", id: category_id }])
+client.objects.delete_reference(class_name: "Post", id: post_id, property: "ofCategory", to_class_name: "Category", to_id: category_id)
+
+# Batch create references
+client.objects.batch_create_references(references: [
+    { from_class_name: "Post", from_id: post_id, property: "ofCategory", to_class_name: "Category", to_id: category_id }
+])
 ```
 
 ### Querying
@@ -342,6 +352,14 @@ client.query.get(
     limit: 5
 )
 
+# Grouping results by a property (requires a near_* or hybrid search)
+client.query.get(
+    class_name: 'Question',
+    fields: '_additional { group { groupedBy { value } count hits { question _additional { id distance } } } }',
+    near_text: { concepts: ['biology'] },
+    group_by: { path: ['category'], groups: 3, objectsPerGroup: 2 }
+)
+
 # Named vector query - uses targetVectors
 query_title = client.query.get(
   class_name: 'ArticleNV',
@@ -366,9 +384,22 @@ client.query.aggs(
     object_limit: "10",
     near_text: "{ concepts: [\"knowledge\"] }"
 )
+
+# Aggregating over hybrid search results, limiting the number of groups returned
+client.query.aggs(
+    class_name: "Question",
+    fields: 'groupedBy { value } meta { count }',
+    group_by: ["category"],
+    with_hybrid: { query: "knowledge", alpha: 0.5 },
+    object_limit: 100,
+    limit: 5
+)
 ```
 
 #### Explore{}
+
+**Deprecated.** Weaviate disables `Explore` when more than one vectorizer module is enabled, which is the case on a default install of recent versions and on Weaviate Cloud. Use `query.get` on each collection instead.
+
 ```ruby
 client.query.explore(
     fields: 'className',
@@ -419,11 +450,76 @@ client.backups.restore_status(
     backend: "filesystem",
     id: "my-first-backup"
 )
+
+# List backups, newest first by default
+client.backups.list(backend: "filesystem", order: "desc")
+
+# Cancel a backup or restore that is in progress
+client.backups.cancel(backend: "filesystem", id: "my-first-backup")
+client.backups.cancel_restore(backend: "filesystem", id: "my-first-backup")
+
+# Cloud storage backends accept a config, plus bucket/path when reading the status
+client.backups.create(backend: "s3", id: "my-backup", config: { Bucket: "my-bucket", Path: "backups" })
+client.backups.get(backend: "s3", id: "my-backup", bucket: "my-bucket", path: "backups")
 ```
 
 ### Nodes
 ```ruby
 client.nodes
+
+# Include shard details, optionally for one collection or shard
+client.nodes(output: "verbose", class_name: "Question")
+```
+
+### Aliases
+```ruby
+# Point an alias at a collection, then query or write through the alias
+client.aliases.create(alias_name: "Questions", class_name: "QuestionV1")
+client.query.get(class_name: "Questions", fields: "question")
+
+# Switch the alias to a new collection, e.g. after a re-index
+client.aliases.update(alias_name: "Questions", class_name: "QuestionV2")
+
+client.aliases.list
+client.aliases.get(alias_name: "Questions")
+client.aliases.delete(alias_name: "Questions")
+```
+
+### Users and roles
+
+These require [RBAC](https://docs.weaviate.io/deploy/configuration/authorization) to be enabled.
+
+```ruby
+client.users.own_info
+
+# Database users
+response = client.users.create(user_id: "reporting")
+response["apikey"] # The new user's API key
+client.users.list
+client.users.get(user_id: "reporting")
+client.users.rotate_key(user_id: "reporting")
+client.users.deactivate(user_id: "reporting", revoke_key: true)
+client.users.activate(user_id: "reporting")
+client.users.delete(user_id: "reporting")
+
+# Roles and permissions
+client.roles.create(
+    name: "question-reader",
+    permissions: [
+        { action: "read_data", data: { collection: "Question" } },
+        { action: "read_collections", collections: { collection: "*" } } # Required for GraphQL queries
+    ]
+)
+client.roles.add_permissions(name: "question-reader", permissions: [{ action: "read_tenants", tenants: { collection: "Question" } }])
+client.roles.has_permission?(name: "question-reader", permission: { action: "read_data", data: { collection: "Question" } })
+client.roles.list
+
+# Assigning roles to users (user_type: "db" or "oidc") and OIDC groups
+client.users.assign_roles(user_id: "reporting", roles: ["question-reader"])
+client.users.roles(user_id: "reporting")
+client.roles.user_assignments(name: "question-reader")
+client.users.revoke_roles(user_id: "reporting", roles: ["question-reader"])
+client.groups.assign_roles(group_id: "analysts", roles: ["question-reader"])
 ```
 
 ### Health
@@ -451,7 +547,18 @@ client.collections.create(
 
 See [Weaviate Multi-tenancy operations](https://weaviate.io/developers/weaviate/manage-data/multi-tenancy). Note that the mix of snake case(used by Ruby) and lower camel case(used by Weaviate) is intentional as that hash is passed directly to Weaviate.
 
-All data methods in this library support an optional `tenant` argument which must be passed if multi-tenancy is enabled on the related collection
+All data methods in this library support an optional `tenant` argument which must be passed if multi-tenancy is enabled on the related collection.
+
+```ruby
+# Tenants can be added by name, or with an activity status
+client.collections.add_tenants(class_name: "Question", tenants: ["tenant-a", { name: "tenant-b", activityStatus: "COLD" }])
+client.collections.update_tenants(class_name: "Question", tenants: [{ name: "tenant-b", activityStatus: "HOT" }])
+client.collections.get_tenant(class_name: "Question", tenant: "tenant-b")
+client.collections.tenant_exists?(class_name: "Question", tenant: "tenant-b")
+client.collections.list_tenants(class_name: "Question")
+client.collections.remove_tenants(class_name: "Question", tenants: ["tenant-a"])
+client.collections.shards(class_name: "Question", tenant: "tenant-b")
+```
 
 ## Development
 

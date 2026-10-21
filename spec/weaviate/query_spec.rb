@@ -131,6 +131,14 @@ RSpec.describe Weaviate::Query do
       }.to raise_error(ArgumentError, /Invalid GraphQL name/)
     end
 
+    it "passes group_by" do
+      query.get(class_name: "Question", fields: "question", near_text: {concepts: ["biology"]}, group_by: {path: ["category"], groups: 2, objectsPerGroup: 3})
+
+      expect(squish(@captured_query)).to eq(
+        '{ Get { Question(nearText: { concepts: ["biology"] }, groupBy: { path: ["category"], groups: 2, objectsPerGroup: 3 }) { question } } }'
+      )
+    end
+
     context "when the query returns errors" do
       let(:response) {
         OpenStruct.new(body: {
@@ -195,6 +203,18 @@ RSpec.describe Weaviate::Query do
     end
   end
 
+  describe "#aggs limit and hybrid" do
+    let(:response) { OpenStruct.new(body: {"data" => {"Aggregate" => {"Question" => []}}}) }
+
+    it "passes limit and hybrid" do
+      query.aggs(class_name: "Question", fields: "meta { count }", with_hybrid: {query: "biology", alpha: 0.5}, object_limit: 10, limit: 5)
+
+      expect(squish(@captured_query)).to eq(
+        '{ Aggregate { Question(objectLimit: 10, limit: 5, hybrid: { query: "biology", alpha: 0.5 }) { meta { count } } } }'
+      )
+    end
+  end
+
   describe "#explore" do
     let(:response) {
       OpenStruct.new(body: {
@@ -203,6 +223,14 @@ RSpec.describe Weaviate::Query do
         }
       })
     }
+
+    before { allow(query).to receive(:warn) }
+
+    it "warns that it is deprecated, once" do
+      expect(query).to receive(:warn).with(/query.explore is deprecated/).once
+
+      2.times { query.explore(fields: "className", near_vector: "{ vector: [0.1] }") }
+    end
 
     it "returns the query" do
       response = query.explore(

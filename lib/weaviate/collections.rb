@@ -113,6 +113,32 @@ module Weaviate
       response.body
     end
 
+    # Update the activity status of one or more tenants.
+    # @param tenants [Array<Hash>] e.g. [{ name: "a", activityStatus: "COLD" }]
+    def update_tenants(
+      class_name:,
+      tenants:
+    )
+      response = client.connection.put("#{PATH}/#{class_name}/tenants") do |req|
+        req.body = tenants_body(tenants)
+      end
+      response.body
+    end
+
+    # Get a single tenant of a collection.
+    def get_tenant(class_name:, tenant:)
+      response = client.connection.get("#{PATH}/#{class_name}/tenants/#{tenant}")
+      response.body
+    end
+
+    # Check if a tenant exists.
+    def tenant_exists?(class_name:, tenant:)
+      response = client.connection.head("#{PATH}/#{class_name}/tenants/#{tenant}")
+      response.success?
+    rescue Weaviate::ResourceNotFound
+      false
+    end
+
     # List tenants of a collection.
     def list_tenants(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}/tenants")
@@ -144,8 +170,10 @@ module Weaviate
     end
 
     # Inspect the shards of a collection
-    def shards(class_name:)
-      response = client.connection.get("#{PATH}/#{class_name}/shards")
+    def shards(class_name:, tenant: nil)
+      response = client.connection.get("#{PATH}/#{class_name}/shards") do |req|
+        req.params["tenant"] = tenant unless tenant.nil?
+      end
       response.body
     end
 
