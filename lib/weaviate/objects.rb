@@ -179,11 +179,7 @@ module Weaviate
         req.params["tenant"] = tenant unless tenant.nil?
       end
 
-      if response.success?
-        response.body.empty?
-      else
-        response.body
-      end
+      response.body.empty?
     end
 
     def batch_delete(
@@ -229,11 +225,7 @@ module Weaviate
         req.body["id"] = id unless id.nil?
       end
 
-      if response.success?
-        response.body.empty?
-      else
-        response.body
-      end
+      response.body.empty?
     end
 
     private

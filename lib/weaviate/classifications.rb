@@ -27,9 +27,7 @@ module Weaviate
         req.body["filters"] = filters if filters
       end
 
-      if response.success?
-        response.body
-      end
+      response.body
     end
   end
 end

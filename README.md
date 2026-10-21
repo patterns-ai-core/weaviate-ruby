@@ -39,9 +39,11 @@ require 'weaviate'
 client = Weaviate::Client.new(
     url: 'https://some-endpoint.weaviate.network',  # Replace with your endpoint
     api_key: '', # Weaviate API key
-    model_service: :openai, # Service that will be used to generate vectors. Possible values: :openai, :azure_openai, :cohere, :huggingface, :google_palm
-    model_service_api_key: 'xxxxxxx', # Either OpenAI, Azure OpenAI, Cohere, Hugging Face or Google PaLM api key
+    model_service: :openai, # Service used to generate vectors, see Weaviate::Client::API_KEY_HEADERS for all values (e.g. :openai, :cohere, :google_studio, :voyageai, :mistral)
+    model_service_api_key: 'xxxxxxx', # API key for the model service
+    headers: { 'X-Aws-Access-Key' => '...', 'X-Aws-Secret-Key' => '...' }, # Optional. Extra headers, e.g. for providers that need several keys or a custom base URL
     proxy: 'http://user:pass@localhost:8888', # Optional. Defaults to the http_proxy/https_proxy env vars
+    open_timeout: 5, read_timeout: 30, write_timeout: 30, # Optional. In seconds, default to 60
     logger: Logger.new($stdout) # Optional. Requests and responses are logged with API keys filtered out
 )
 ```
@@ -413,12 +415,11 @@ client.nodes
 
 ### Health
 ```ruby
-# Live determines whether the application is alive. It can be used for Kubernetes liveness probe.
+# Whether the application is alive. It can be used for Kubernetes liveness probe.
 client.live?
-```
 
-```ruby
-# Live determines whether the application is ready to receive traffic. It can be used for Kubernetes readiness probe.
+# Whether the application is ready to receive traffic. It can be used for Kubernetes readiness probe.
+# Both return false when Weaviate responds with an error or cannot be reached.
 client.ready?
 ```
 

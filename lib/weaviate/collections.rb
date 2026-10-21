@@ -14,12 +14,7 @@ module Weaviate
     # Get a single collection
     def get(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}")
-
-      if response.success?
-        response.body
-      elsif response.status == 404
-        response.reason_phrase
-      end
+      response.body
     end
 
     # Create a new collection.
@@ -67,12 +62,7 @@ module Weaviate
     # Remove a collection (and all data in the instances).
     def delete(class_name:)
       response = client.connection.delete("#{PATH}/#{class_name}")
-
-      if response.success?
-        response.body.empty?
-      else
-        response.body
-      end
+      response.body.empty?
     end
 
     # Update settings of an existing collection.
@@ -110,13 +100,13 @@ module Weaviate
     end
 
     # Adds one or more tenants to a collection.
+    # @param tenants [Array<String, Hash>] Tenant names, or hashes such as { name: "a", activityStatus: "COLD" }
     def add_tenants(
       class_name:,
       tenants:
     )
       response = client.connection.post("#{PATH}/#{class_name}/tenants") do |req|
-        tenants_str = tenants.map { |t| %({"name": "#{t}"}) }.join(", ")
-        req.body = "[#{tenants_str}]"
+        req.body = tenants_body(tenants)
       end
       response.body
     end
@@ -136,9 +126,6 @@ module Weaviate
         req.body = tenants
       end
 
-      if response.success?
-      end
-
       response.body
     end
 
@@ -151,15 +138,13 @@ module Weaviate
         req.body = property
       end
 
-      if response.success?
-      end
       response.body
     end
 
     # Inspect the shards of a collection
     def shards(class_name:)
       response = client.connection.get("#{PATH}/#{class_name}/shards")
-      response.body if response.success?
+      response.body
     end
 
     # Update shard status
@@ -170,10 +155,15 @@ module Weaviate
         req.body = {}
         req.body["status"] = status
       end
-      response.body if response.success?
+
+      response.body
     end
 
     private
+
+    def tenants_body(tenants)
+      Array(tenants).map { |tenant| tenant.is_a?(Hash) ? tenant : {name: tenant.to_s} }
+    end
 
     def deep_merge(current, changes)
       current.merge(changes) do |_key, current_value, new_value|

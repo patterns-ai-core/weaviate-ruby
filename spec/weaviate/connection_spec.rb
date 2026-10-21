@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "logger"
 require "stringio"
 
 RSpec.describe Weaviate::Connection do
@@ -8,7 +9,7 @@ RSpec.describe Weaviate::Connection do
   let(:connection) {
     described_class.new(
       url: "http://localhost:8080/v1/",
-      headers: {"Authorization" => "Bearer secret", "X-OpenAI-Api-Key" => "sk-secret"},
+      headers: {"Authorization" => "Bearer secret", "X-OpenAI-Api-Key" => "sk-secret", "X-Databricks-Token" => "dapi-value-1", "X-Aws-Secret-Key" => "aws-value-2"},
       logger: Logger.new(log)
     )
   }
@@ -100,6 +101,15 @@ RSpec.describe Weaviate::Connection do
     expect { connection.get("meta") }.to raise_error(Weaviate::TimeoutError)
   end
 
+  it "passes timeouts to Net::HTTP" do
+    connection = described_class.new(url: "http://localhost:8080/v1", open_timeout: 2, read_timeout: 30)
+    stub_http(http_response(Net::HTTPOK, 200, body: "{}"))
+
+    connection.get("meta")
+
+    expect(@start_kwargs).to eq(use_ssl: false, open_timeout: 2, read_timeout: 30)
+  end
+
   it "connects through the configured proxy" do
     connection = described_class.new(url: "https://example.weaviate.network/v1", proxy: "http://user:pass@proxy.local:8888")
     stub_http(http_response(Net::HTTPOK, 200, body: "{}"))
@@ -118,6 +128,10 @@ RSpec.describe Weaviate::Connection do
     expect(log.string).to include("GET http://localhost:8080/v1/meta")
     expect(log.string).to include("authorization: [FILTERED]")
     expect(log.string).to include("x-openai-api-key: [FILTERED]")
-    expect(log.string).not_to include("secret")
+    expect(log.string).to include("x-databricks-token: [FILTERED]")
+    expect(log.string).to include("x-aws-secret-key: [FILTERED]")
+    %w[Bearer\ secret sk-secret dapi-value-1 aws-value-2].each do |value|
+      expect(log.string).not_to include(value)
+    end
   end
 end

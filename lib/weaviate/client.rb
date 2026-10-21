@@ -4,33 +4,60 @@ require "logger"
 
 module Weaviate
   class Client
-    attr_reader :url, :api_key, :model_service, :model_service_api_key, :proxy, :logger
+    attr_reader :url, :api_key, :model_service, :model_service_api_key, :headers, :proxy, :logger,
+      :open_timeout, :read_timeout, :write_timeout
 
     API_VERSION = "v1"
 
+    # Headers Weaviate reads model provider API keys from. Providers that need more than one
+    # header (e.g. AWS) or a custom base URL can be configured with the `headers:` option.
     API_KEY_HEADERS = {
-      ollama: "X-Ollama-Not-Used",
-      openai: "X-OpenAI-Api-Key",
+      anthropic: "X-Anthropic-Api-Key",
+      anyscale: "X-Anyscale-Api-Key",
       azure_openai: "X-Azure-Api-Key",
       cohere: "X-Cohere-Api-Key",
+      contextualai: "X-ContextualAI-Api-Key",
+      databricks: "X-Databricks-Token",
+      deepseek: "X-Deepseek-Api-Key",
+      digitalocean: "X-Digitalocean-Api-Key",
+      friendliai: "X-Friendli-Token",
+      google: "X-Goog-Api-Key",
+      google_palm: "X-Palm-Api-Key",
+      google_studio: "X-Goog-Studio-Api-Key",
+      google_vertex: "X-Goog-Vertex-Api-Key",
       huggingface: "X-HuggingFace-Api-Key",
-      google_palm: "X-Palm-Api-Key"
+      jinaai: "X-JinaAI-Api-Key",
+      mistral: "X-Mistral-Api-Key",
+      nvidia: "X-Nvidia-Api-Key",
+      ollama: "X-Ollama-Not-Used",
+      openai: "X-OpenAI-Api-Key",
+      twelvelabs: "X-Twelvelabs-Api-Key",
+      voyageai: "X-VoyageAI-Api-Key",
+      xai: "X-Xai-Api-Key"
     }
 
     # @param url [String] The Weaviate instance URL
     # @param api_key [String] The Weaviate API key
     # @param model_service [Symbol] The service used to generate vectors, one of the API_KEY_HEADERS keys
     # @param model_service_api_key [String] The API key for the model service
+    # @param headers [Hash] Additional headers sent with every request, e.g. { "X-Aws-Access-Key" => "...", "X-Aws-Secret-Key" => "..." }
     # @param proxy [String] Proxy URL, e.g. "http://user:pass@localhost:8888". Defaults to the http_proxy/https_proxy env vars.
     # @param logger [Logger] Logger for requests and responses
+    # @param open_timeout [Numeric] Seconds to wait for a connection to open. Defaults to Net::HTTP's 60 seconds.
+    # @param read_timeout [Numeric] Seconds to wait for a response. Defaults to Net::HTTP's 60 seconds.
+    # @param write_timeout [Numeric] Seconds to wait for a request to be written. Defaults to Net::HTTP's 60 seconds.
     # @param adapter [Object] Deprecated and ignored, Faraday is no longer used
     def initialize(
       url:,
       api_key: nil,
       model_service: nil,
       model_service_api_key: nil,
+      headers: {},
       proxy: nil,
       logger: nil,
+      open_timeout: nil,
+      read_timeout: nil,
+      write_timeout: nil,
       adapter: nil
     )
       validate_model_service!(model_service) unless model_service.nil?
@@ -40,8 +67,12 @@ module Weaviate
       @api_key = api_key
       @model_service = model_service
       @model_service_api_key = model_service_api_key
+      @headers = headers
       @proxy = proxy
       @logger = logger || Logger.new($stdout)
+      @open_timeout = open_timeout
+      @read_timeout = read_timeout
+      @write_timeout = write_timeout
     end
 
     def oidc
@@ -100,16 +131,19 @@ module Weaviate
     def connection
       @connection ||= Weaviate::Connection.new(
         url: "#{url}/#{API_VERSION}",
-        headers: headers,
+        headers: default_headers.merge(headers),
         logger: logger,
-        proxy: proxy
+        proxy: proxy,
+        open_timeout: open_timeout,
+        read_timeout: read_timeout,
+        write_timeout: write_timeout
       )
     end
 
     private
 
-    def headers
-      headers = {}
+    def default_headers
+      headers = {"User-Agent" => "weaviate-ruby/#{Weaviate::VERSION}"}
       headers["Authorization"] = "Bearer #{api_key}" if api_key
       headers[API_KEY_HEADERS[model_service]] = model_service_api_key if model_service && model_service_api_key
       headers
