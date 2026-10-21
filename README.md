@@ -281,7 +281,20 @@ client.objects.batch_delete(
 ### Querying
 
 #### Get{}
+
+Arguments such as `where`, `near_text` or `sort` can be passed either as raw GraphQL strings or as Ruby hashes/arrays.
+Hashes are converted to GraphQL: strings are quoted and escaped (safe for user input), and symbols are sent as enums.
+`operator`, `order` and `fusionType` values are always sent as enums.
+
 ```ruby
+client.query.get(
+    class_name: 'Question',
+    fields: 'question category',
+    where: { path: ['category'], operator: :Equal, valueText: params[:category] },
+    sort: [{ path: ['category'], order: :asc }],
+    limit: 10
+)
+
 near_text = '{ concepts: ["biology"] }'
 near_vector = '{ vector: [0.1, 0.2, ...] }'
 sort_obj = '{ path: ["category"], order: desc }'

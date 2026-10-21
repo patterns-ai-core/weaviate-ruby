@@ -93,6 +93,44 @@ RSpec.describe Weaviate::Query do
       )
     end
 
+    it "serializes Ruby hashes, arrays and symbols into GraphQL arguments" do
+      query.get(
+        class_name: "Question",
+        fields: "question",
+        where: {
+          operator: "And",
+          operands: [
+            {path: ["category"], operator: :Equal, valueText: "Say \"hi\"\n"},
+            {path: ["points"], operator: "GreaterThan", valueNumber: 1.5},
+            {path: ["active"], operator: :Equal, valueBoolean: true}
+          ]
+        },
+        near_text: {concepts: ["biology"], certainty: 0.7},
+        sort: [{path: ["points"], order: "desc"}],
+        with_hybrid: {query: "Sweets", alpha: 0.5, fusionType: :relativeScoreFusion}
+      )
+
+      expect(squish(@captured_query)).to eq(
+        '{ Get { Question(nearText: { concepts: ["biology"], certainty: 0.7 }, ' \
+        'hybrid: { query: "Sweets", alpha: 0.5, fusionType: relativeScoreFusion }, ' \
+        'where: { operator: And, operands: [{ path: ["category"], operator: Equal, valueText: "Say \\"hi\\"\\n" }, ' \
+        '{ path: ["points"], operator: GreaterThan, valueNumber: 1.5 }, { path: ["active"], operator: Equal, valueBoolean: true }] }, ' \
+        'sort: [{ path: ["points"], order: desc }]) { question } } }'
+      )
+    end
+
+    it "quotes strings for enum keys that are not valid enum names" do
+      query.get(class_name: "Question", fields: "question", where: {path: ["id"], operator: "Equal) { x", valueText: "a"})
+
+      expect(@captured_query).to include('operator: "Equal) { x"')
+    end
+
+    it "rejects keys that are not valid GraphQL names" do
+      expect {
+        query.get(class_name: "Question", fields: "question", where: {"path) { x" => ["id"]})
+      }.to raise_error(ArgumentError, /Invalid GraphQL name/)
+    end
+
     context "when the query returns errors" do
       let(:response) {
         OpenStruct.new(body: {

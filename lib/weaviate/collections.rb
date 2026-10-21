@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Weaviate
   # Manage collections (formerly known as "classes" in the Weaviate schema).
   class Collections < Base

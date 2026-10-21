@@ -1,7 +1,14 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Weaviate
   class Query < Base
+    # Fields whose values are GraphQL enums, so strings are sent unquoted, e.g. operator: "Equal"
+    ENUM_KEYS = %w[operator order fusionType].freeze
+
+    GRAPHQL_NAME = /\A[_A-Za-z][_0-9A-Za-z]*\z/
+
     def get(
       class_name:,
       fields:,
@@ -216,11 +223,45 @@ module Weaviate
 
     # Only arguments that were provided are included in the query.
     # Weaviate fails on explicit nulls, e.g. "interface conversion: interface {} is nil, not int".
+    # String arguments are passed through as raw GraphQL, anything else is serialized with {#graphql_value}.
     def build_arguments(**arguments)
       arguments = arguments.reject { |_, value| value.nil? }
       return "" if arguments.empty?
 
-      "(#{arguments.map { |name, value| "#{name}: #{value}" }.join(", ")})"
+      arguments = arguments.map do |name, value|
+        "#{name}: #{value.is_a?(String) ? value : graphql_value(value)}"
+      end
+
+      "(#{arguments.join(", ")})"
+    end
+
+    # Serializes a Ruby value into a GraphQL input value:
+    #   { path: ["category"], operator: :Equal, valueText: "SCIENCE" }
+    #   => { path: ["category"], operator: Equal, valueText: "SCIENCE" }
+    # Strings are quoted and escaped, symbols become enums.
+    def graphql_value(value, key = nil)
+      case value
+      when Hash
+        "{ #{value.map { |k, v| "#{graphql_name(k)}: #{graphql_value(v, k.to_s)}" }.join(", ")} }"
+      when Array
+        "[#{value.map { |v| graphql_value(v, key) }.join(", ")}]"
+      when Symbol
+        graphql_name(value)
+      when String
+        (ENUM_KEYS.include?(key) && value.match?(GRAPHQL_NAME)) ? value : value.to_json
+      when Numeric, true, false
+        value.to_s
+      when nil
+        "null"
+      else
+        raise ArgumentError, "Cannot convert #{value.class} to a GraphQL value"
+      end
+    end
+
+    def graphql_name(name)
+      name = name.to_s
+      raise ArgumentError, "Invalid GraphQL name: #{name.inspect}" unless name.match?(GRAPHQL_NAME)
+      name
     end
 
     def integer_value(value)
