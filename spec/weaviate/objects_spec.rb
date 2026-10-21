@@ -18,7 +18,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, body: object_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post)
+      allow_any_instance_of(Weaviate::Connection).to receive(:post)
         .with("objects")
         .and_return(response)
     end
@@ -41,7 +41,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(body: {"objects" => objects_fixture}) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("objects")
         .and_return(response)
     end
@@ -56,7 +56,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, status: 204, body: "") }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:head)
+      allow_any_instance_of(Weaviate::Connection).to receive(:head)
         .with("objects/Question/123")
         .and_return(response)
     end
@@ -74,7 +74,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, body: object_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("objects/Question/123")
         .and_return(response)
     end
@@ -92,7 +92,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, body: "") }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:delete)
+      allow_any_instance_of(Weaviate::Connection).to receive(:delete)
         .with("objects/Question/123")
         .and_return(response)
     end
@@ -110,7 +110,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, body: batch_delete_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:delete)
+      allow_any_instance_of(Weaviate::Connection).to receive(:delete)
         .with("batch/objects")
         .and_return(response)
     end
@@ -132,7 +132,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, body: object_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:patch)
+      allow_any_instance_of(Weaviate::Connection).to receive(:patch)
         .with("objects/Question/123")
         .and_return(response)
     end
@@ -155,7 +155,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, body: object_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:put)
+      allow_any_instance_of(Weaviate::Connection).to receive(:put)
         .with("objects/Question/123")
         .and_return(response)
     end
@@ -178,7 +178,7 @@ RSpec.describe Weaviate::Objects do
     let(:response) { OpenStruct.new(success?: true, body: objects_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post)
+      allow_any_instance_of(Weaviate::Connection).to receive(:post)
         .with("batch/objects")
         .and_return(response)
     end

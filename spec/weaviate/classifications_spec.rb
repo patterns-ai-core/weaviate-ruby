@@ -16,7 +16,7 @@ RSpec.describe Weaviate::Classifications do
     let(:response) { OpenStruct.new(success?: true, body: classification_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post)
+      allow_any_instance_of(Weaviate::Connection).to receive(:post)
         .with("classifications")
         .and_return(response)
     end
@@ -37,7 +37,7 @@ RSpec.describe Weaviate::Classifications do
     let(:response) { OpenStruct.new(success?: true, body: classification_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("classifications/1")
         .and_return(response)
     end

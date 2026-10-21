@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require_relative "weaviate/version"
+require_relative "weaviate/error"
 
 module Weaviate
   autoload :Base, "weaviate/base"
   autoload :Client, "weaviate/client"
-  autoload :Error, "weaviate/error"
-  autoload :Schema, "weaviate/schema"
+  autoload :Connection, "weaviate/connection"
+  autoload :Collections, "weaviate/collections"
+  autoload :Schema, "weaviate/collections"
+  autoload :GraphQL, "weaviate/graphql"
   autoload :Meta, "weaviate/meta"
   autoload :Objects, "weaviate/objects"
   autoload :OIDC, "weaviate/oidc"

@@ -1,5 +1,18 @@
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-21
+- Drop the `faraday` and `graphlient` dependencies in favor of Ruby's built-in `Net::HTTP` (#56)
+- Fix `query.get` failing with "interface conversion: interface {} is nil, not int" on Weaviate >= 1.26.4. Only the arguments that are passed are sent in GraphQL queries (#63)
+- Add `proxy:` option to `Weaviate::Client.new`. The `http_proxy`/`https_proxy` env vars are respected by default (#55)
+- Add `client.collections` (`Weaviate::Collections`) to match Weaviate's terminology. `client.schema` and `Weaviate::Schema` remain as aliases (#69)
+- API keys are filtered out of request logs
+
+### Breaking
+- HTTP errors are raised as `Weaviate::HTTPError` subclasses (e.g. `Weaviate::ResourceNotFound`, `Weaviate::ServerError`) instead of `Faraday::Error` subclasses. Network failures raise `Weaviate::ConnectionFailed`/`Weaviate::TimeoutError`
+- GraphQL errors are raised as `Weaviate::GraphQLError` (a `Weaviate::Error` subclass) whose message is the joined error messages
+- `client.connection` returns a `Weaviate::Connection` and `client.graphql` returns a `Weaviate::GraphQL` instead of Faraday/Graphlient clients
+- The `adapter:` option is deprecated and ignored
+
 ## [0.9.2] - 2024-10-01
 - Weaviate::Client constructor accepts customer logger: to be passed in
 

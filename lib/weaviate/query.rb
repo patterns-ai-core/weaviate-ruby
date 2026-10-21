@@ -20,12 +20,15 @@ module Weaviate
       bm25: nil,
       ask: nil
     )
-      response = client.graphql.execute(
+      data = client.graphql.execute(
         get_query(
           class_name: class_name,
-          tenant: tenant,
           fields: fields,
+          after: after,
+          tenant: tenant,
+          limit: limit,
           autocut: autocut,
+          offset: offset,
           sort: sort,
           where: where,
           near_text: near_text,
@@ -35,14 +38,9 @@ module Weaviate
           with_hybrid: with_hybrid,
           bm25: bm25,
           ask: ask
-        ),
-        after: after,
-        limit: limit,
-        offset: offset
+        )
       )
-      response.original_hash.dig("data", "Get", class_name)
-    rescue Graphlient::Errors::ExecutionError => error
-      raise Weaviate::Error.new(error.response.data.get.errors.messages.to_h)
+      data.dig("Get", class_name)
     end
 
     def aggs(
@@ -57,23 +55,21 @@ module Weaviate
       near_object: nil,
       group_by: nil
     )
-      response = client.graphql.execute(
+      data = client.graphql.execute(
         aggs_query(
           class_name: class_name,
-          tenant: tenant,
           fields: fields,
+          tenant: tenant,
           where: where,
+          object_limit: object_limit,
           near_text: near_text,
           near_vector: near_vector,
           near_image: near_image,
-          near_object: near_object
-        ),
-        group_by: group_by,
-        object_limit: object_limit
+          near_object: near_object,
+          group_by: group_by
+        )
       )
-      response.original_hash.dig("data", "Aggregate", class_name)
-    rescue Graphlient::Errors::ExecutionError => error
-      raise Weaviate::Error.new(error.response.data.aggregate.errors.messages.to_h)
+      data.dig("Aggregate", class_name)
     end
 
     def explore(
@@ -88,29 +84,30 @@ module Weaviate
       near_image: nil,
       near_object: nil
     )
-      response = client.graphql.execute(
+      data = client.graphql.execute(
         explore_query(
           fields: fields,
+          after: after,
+          limit: limit,
+          offset: offset,
           sort: sort,
           where: where,
           near_text: near_text,
           near_vector: near_vector,
           near_image: near_image,
           near_object: near_object
-        ),
-        after: after,
-        limit: limit,
-        offset: offset
+        )
       )
-      response.original_hash.dig("data", "Explore")
-    rescue Graphlient::Errors::ExecutionError => error
-      raise Weaviate::Error.new(error.to_s)
+      data["Explore"]
     end
 
     private
 
     def explore_query(
       fields:,
+      after: nil,
+      limit: nil,
+      offset: nil,
       where: nil,
       near_text: nil,
       near_vector: nil,
@@ -118,21 +115,21 @@ module Weaviate
       near_object: nil,
       sort: nil
     )
-      client.graphql.parse <<~GRAPHQL
-        query(
-          $limit: Int,
-          $offset: Int
-        ) {
-          Explore (
-            limit: $limit,
-            offset: $offset,
-            #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
-            #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
-            #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
-            #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
-            #{(!where.nil?) ? "where: #{where}" : ""},
-            #{(!sort.nil?) ? "sort: #{sort}" : ""}
-          ) {
+      arguments = build_arguments(
+        after: string_value(after),
+        limit: integer_value(limit),
+        offset: integer_value(offset),
+        nearText: near_text,
+        nearVector: near_vector,
+        nearImage: near_image,
+        nearObject: near_object,
+        where: where,
+        sort: sort
+      )
+
+      <<~GRAPHQL
+        {
+          Explore#{arguments} {
             #{fields}
           }
         }
@@ -142,8 +139,11 @@ module Weaviate
     def get_query(
       class_name:,
       fields:,
-      autocut: nil,
+      after: nil,
       tenant: nil,
+      limit: nil,
+      autocut: nil,
+      offset: nil,
       where: nil,
       near_text: nil,
       near_vector: nil,
@@ -154,29 +154,27 @@ module Weaviate
       ask: nil,
       sort: nil
     )
-      client.graphql.parse <<~GRAPHQL
-        query(
-          $after: String,
-          $limit: Int,
-          $offset: Int,
-        ) {
+      arguments = build_arguments(
+        after: string_value(after),
+        limit: integer_value(limit),
+        offset: integer_value(offset),
+        autocut: integer_value(autocut),
+        tenant: string_value(tenant),
+        nearText: near_text,
+        nearVector: near_vector,
+        nearImage: near_image,
+        nearObject: near_object,
+        hybrid: with_hybrid,
+        bm25: bm25,
+        ask: ask,
+        where: where,
+        sort: sort
+      )
+
+      <<~GRAPHQL
+        {
           Get {
-            #{class_name}(
-              after: $after,
-              limit: $limit,
-              offset: $offset,
-              #{(!autocut.nil?) ? "autocut: #{autocut}" : ""},
-              #{(!tenant.nil?) ? "tenant: \"#{tenant}\"" : ""},
-              #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
-              #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
-              #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
-              #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
-              #{(!with_hybrid.nil?) ? "hybrid: #{with_hybrid}" : ""},
-              #{(!bm25.nil?) ? "bm25: #{bm25}" : ""},
-              #{(!ask.nil?) ? "ask: #{ask}" : ""},
-              #{(!where.nil?) ? "where: #{where}" : ""},
-              #{(!sort.nil?) ? "sort: #{sort}" : ""}
-            ) {
+            #{class_name}#{arguments} {
               #{fields}
             }
           }
@@ -189,32 +187,50 @@ module Weaviate
       fields:,
       tenant: nil,
       where: nil,
+      object_limit: nil,
       near_text: nil,
       near_vector: nil,
       near_image: nil,
-      near_object: nil
+      near_object: nil,
+      group_by: nil
     )
-      client.graphql.parse <<~GRAPHQL
-        query(
-          $group_by: [String],
-          $object_limit: Int,
-        ) {
+      arguments = build_arguments(
+        objectLimit: integer_value(object_limit),
+        groupBy: group_by && Array(group_by).map(&:to_s).to_json,
+        tenant: string_value(tenant),
+        nearText: near_text,
+        nearVector: near_vector,
+        nearImage: near_image,
+        nearObject: near_object,
+        where: where
+      )
+
+      <<~GRAPHQL
+        {
           Aggregate {
-            #{class_name}(
-              objectLimit: $object_limit,
-              groupBy: $group_by,
-              #{(!tenant.nil?) ? "tenant: \"#{tenant}\"" : ""},
-              #{(!near_text.nil?) ? "nearText: #{near_text}" : ""},
-              #{(!near_vector.nil?) ? "nearVector: #{near_vector}" : ""},
-              #{(!near_image.nil?) ? "nearImage: #{near_image}" : ""},
-              #{(!near_object.nil?) ? "nearObject: #{near_object}" : ""},
-              #{(!where.nil?) ? "where: #{where}" : ""}
-            ) {
+            #{class_name}#{arguments} {
               #{fields}
             }
           }
         }
       GRAPHQL
+    end
+
+    # Only arguments that were provided are included in the query.
+    # Weaviate fails on explicit nulls, e.g. "interface conversion: interface {} is nil, not int".
+    def build_arguments(**arguments)
+      arguments = arguments.reject { |_, value| value.nil? }
+      return "" if arguments.empty?
+
+      "(#{arguments.map { |name, value| "#{name}: #{value}" }.join(", ")})"
+    end
+
+    def integer_value(value)
+      Integer(value) unless value.nil?
+    end
+
+    def string_value(value)
+      value.to_s.to_json unless value.nil?
     end
   end
 end

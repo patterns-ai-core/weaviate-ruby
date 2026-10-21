@@ -16,7 +16,7 @@ RSpec.describe Weaviate::Backups do
     let(:response) { OpenStruct.new(success?: true, body: backup_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post)
+      allow_any_instance_of(Weaviate::Connection).to receive(:post)
         .with("backups/filesystem")
         .and_return(response)
     end
@@ -36,7 +36,7 @@ RSpec.describe Weaviate::Backups do
     let(:response) { OpenStruct.new(success?: true, body: backup_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("backups/filesystem/my-first-backup")
         .and_return(response)
     end
@@ -54,7 +54,7 @@ RSpec.describe Weaviate::Backups do
     let(:response) { OpenStruct.new(success?: true, body: backup_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post)
+      allow_any_instance_of(Weaviate::Connection).to receive(:post)
         .with("backups/filesystem/my-first-backup/restore")
         .and_return(response)
     end
@@ -74,7 +74,7 @@ RSpec.describe Weaviate::Backups do
     let(:response) { OpenStruct.new(success?: true, body: backup_fixture) }
 
     before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("backups/filesystem/my-first-backup/restore")
         .and_return(response)
     end
