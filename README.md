@@ -151,6 +151,44 @@ client.collections.create(
         },
     },
 )
+
+# Creating collections with named vectors
+
+client.collections.create(
+  class_name: 'ArticleNV',
+  description: 'Articles with named vectors',
+  properties: [
+    {
+      "dataType": ["text"],
+      "name": "title"
+    },
+    {
+      "dataType": ["text"],
+      "name": "body"
+    }
+  ],
+  # cannot use vectorizer and vector_config at the same time
+  # will need to specify for each property
+  vector_config: {
+    "title": {
+      "vectorizer": {
+        "text2vec-openai": {
+          "properties": ["title"]
+        }
+      },
+      "vectorIndexType": "hnsw",  # This is the default 
+    },
+    "body": {
+      "vectorizer": {
+        "text2vec-openai": {
+          "properties": ["body"]
+        }
+      },
+      "vectorIndexType": "hnsw",  # This is the default
+
+    }
+  }
+)
 ```
 
 ### Using the Objects endpoint
@@ -287,6 +325,17 @@ client.query.get(
     fields: 'question _additional { distance certainty }',
     near_text: '{ concepts: ["biology"], distance: 0.6 }', # or certainty: 0.7
     limit: 5
+)
+
+# Named vector query - uses targetVectors
+query_title = client.query.get(
+  class_name: 'ArticleNV',
+  fields: 'title body _additional { id }',
+  near_text: '{
+    targetVectors: ["title"],
+    concepts: ["quantum computers advances"]
+  }',
+  limit: "2"
 )
 
 

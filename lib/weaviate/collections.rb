@@ -35,7 +35,8 @@ module Weaviate
       vectorizer: nil,
       module_config: nil,
       inverted_index_config: nil,
-      replication_config: nil
+      replication_config: nil,
+      vector_config: nil
     )
       response = client.connection.post(PATH) do |req|
         req.body = {}
@@ -57,6 +58,7 @@ module Weaviate
 
         req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
         req.body["replicationConfig"] = replication_config unless replication_config.nil?
+        req.body["vectorConfig"] = vector_config unless vector_config.nil?
       end
 
       response.body
@@ -85,7 +87,8 @@ module Weaviate
       module_config: nil,
       properties: nil,
       inverted_index_config: nil,
-      replication_config: nil
+      replication_config: nil,
+      vector_config: nil
     )
       changes = {
         "description" => description,
@@ -95,7 +98,8 @@ module Weaviate
         "moduleConfig" => module_config,
         "properties" => properties,
         "invertedIndexConfig" => inverted_index_config,
-        "replicationConfig" => replication_config
+        "replicationConfig" => replication_config,
+        "vectorConfig" => vector_config
       }.compact
 
       response = client.connection.put("#{PATH}/#{class_name}") do |req|

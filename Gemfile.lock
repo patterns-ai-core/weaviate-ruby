@@ -28,9 +28,9 @@ GEM
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.0.6)
-    rdiscount (2.2.7.1)
+    rdiscount (2.2.7.4)
     regexp_parser (2.7.0)
-    rexml (3.2.5)
+    rexml (3.4.2)
     rspec (3.11.0)
       rspec-core (~> 3.11.0)
       rspec-expectations (~> 3.11.0)
@@ -65,7 +65,7 @@ GEM
       rubocop (~> 1.48.1)
       rubocop-performance (~> 1.16.0)
     unicode-display_width (2.4.2)
-    yard (0.9.34)
+    yard (0.9.37)
 
 PLATFORMS
   arm64-darwin-21
