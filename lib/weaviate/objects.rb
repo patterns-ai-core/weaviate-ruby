@@ -66,10 +66,12 @@ module Weaviate
     )
       validate_consistency_level!(consistency_level) unless consistency_level.nil?
 
+      # Weaviate expects the tenant on each object rather than on the batch
+      objects = objects.map { |object| {tenant: tenant}.merge(object) } unless tenant.nil?
+
       response = client.connection.post("batch/#{PATH}") do |req|
         req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
         req.body = {objects: objects}
-        req.body["tenant"] = tenant unless tenant.nil?
       end
 
       response.body
@@ -109,6 +111,8 @@ module Weaviate
       end
 
       response.status == 204
+    rescue Weaviate::ResourceNotFound
+      false
     end
 
     # Update an individual data object based on its uuid.

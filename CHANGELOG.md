@@ -6,6 +6,10 @@
 - Add `proxy:` option to `Weaviate::Client.new`. The `http_proxy`/`https_proxy` env vars are respected by default (#55)
 - Add `client.collections` (`Weaviate::Collections`) to match Weaviate's terminology. `client.schema` and `Weaviate::Schema` remain as aliases (#69)
 - API keys are filtered out of request logs
+- Fix `collections.update` failing with 422 on immutable settings: the changes are now merged into the current collection definition, since Weaviate replaces the whole definition on update
+- Fix `objects.exists?` raising on missing objects instead of returning `false`
+- Fix `objects.batch_create(tenant:)` being ignored by Weaviate: the tenant is now set on each object
+- Fix `query.aggs` failing with "groupBy must be a list, instead got: <nil>" when `group_by`/`object_limit` are not passed
 
 ### Breaking
 - HTTP errors are raised as `Weaviate::HTTPError` subclasses (e.g. `Weaviate::ResourceNotFound`, `Weaviate::ServerError`) instead of `Faraday::Error` subclasses. Network failures raise `Weaviate::ConnectionFailed`/`Weaviate::TimeoutError`

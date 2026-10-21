@@ -125,20 +125,45 @@ RSpec.describe Weaviate::Collections do
   end
 
   describe "#update" do
-    let(:response) { OpenStruct.new(success?: true, body: class_fixture) }
+    let(:current) {
+      {
+        "class" => "Question",
+        "description" => "Information from a Jeopardy! question",
+        "invertedIndexConfig" => {"indexTimestamps" => true, "bm25" => {"b" => 0.75, "k1" => 1.2}},
+        "properties" => [{"name" => "question", "dataType" => ["text"]}]
+      }
+    }
 
     before do
-      allow_any_instance_of(Weaviate::Connection).to receive(:put)
+      @captured_request = nil
+
+      allow_any_instance_of(Weaviate::Connection).to receive(:get)
         .with("schema/Question")
-        .and_return(response)
+        .and_return(OpenStruct.new(success?: true, body: current))
+
+      allow_any_instance_of(Weaviate::Connection).to receive(:put) do |_, path, &block|
+        expect(path).to eq("schema/Question")
+        req = OpenStruct.new(body: nil)
+        block.call(req)
+        @captured_request = req
+        OpenStruct.new(success?: true, body: req.body)
+      end
     end
 
-    it "returns the schema" do
+    it "merges the changes into the current definition" do
       response = schema.update(
         class_name: "Question",
-        description: "Information from a Wheel of Fortune question"
+        description: "Information from a Wheel of Fortune question",
+        inverted_index_config: {bm25: {b: 0.8}}
       )
+
       expect(response.dig("class")).to eq("Question")
+      expect(@captured_request.body).to eq(
+        "class" => "Question",
+        "description" => "Information from a Wheel of Fortune question",
+        "invertedIndexConfig" => {"indexTimestamps" => true, "bm25" => {"b" => 0.8, "k1" => 1.2}},
+        "properties" => [{"name" => "question", "dataType" => ["text"]}]
+      )
     end
   end
 

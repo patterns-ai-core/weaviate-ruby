@@ -180,5 +180,11 @@ RSpec.describe Weaviate::Query do
         '{ Explore(limit: 1, nearText: { concepts: ["biology"] }) { certainty className } }'
       )
     end
+
+    it "ignores after, which Explore does not support" do
+      query.explore(fields: "className", near_vector: "{ vector: [0.1] }", after: "abc")
+
+      expect(squish(@captured_query)).to eq("{ Explore(nearVector: { vector: [0.1] }) { className } }")
+    end
   end
 end

@@ -84,10 +84,10 @@ module Weaviate
       near_image: nil,
       near_object: nil
     )
+      # `after` is accepted for backwards compatibility, but Explore does not support it
       data = client.graphql.execute(
         explore_query(
           fields: fields,
-          after: after,
           limit: limit,
           offset: offset,
           sort: sort,
@@ -105,7 +105,6 @@ module Weaviate
 
     def explore_query(
       fields:,
-      after: nil,
       limit: nil,
       offset: nil,
       where: nil,
@@ -116,7 +115,6 @@ module Weaviate
       sort: nil
     )
       arguments = build_arguments(
-        after: string_value(after),
         limit: integer_value(limit),
         offset: integer_value(offset),
         nearText: near_text,

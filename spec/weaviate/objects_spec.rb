@@ -68,6 +68,14 @@ RSpec.describe Weaviate::Objects do
       )
       expect(response).to eq(true)
     end
+
+    it "returns false when the object does not exist" do
+      allow_any_instance_of(Weaviate::Connection).to receive(:head)
+        .with("objects/Question/456")
+        .and_raise(Weaviate::ResourceNotFound.new(response: OpenStruct.new(status: 404)))
+
+      expect(objects.exists?(class_name: "Question", id: "456")).to eq(false)
+    end
   end
 
   describe "#get" do
@@ -202,6 +210,26 @@ RSpec.describe Weaviate::Objects do
         }
       ])
       expect(response.count).to eq(2)
+    end
+
+    it "sets the tenant on each object" do
+      captured_request = nil
+      allow_any_instance_of(Weaviate::Connection).to receive(:post) do |_, path, &block|
+        req = OpenStruct.new(params: {}, body: nil)
+        block.call(req)
+        captured_request = req
+        response
+      end
+
+      objects.batch_create(tenant: "a", objects: [
+        {class: "Question", properties: {answer: "42"}},
+        {class: "Question", tenant: "b", properties: {answer: "43"}}
+      ])
+
+      expect(captured_request.body).to eq(objects: [
+        {tenant: "a", class: "Question", properties: {answer: "42"}},
+        {tenant: "b", class: "Question", properties: {answer: "43"}}
+      ])
     end
   end
 end

@@ -74,9 +74,8 @@ module Weaviate
     end
 
     # Update settings of an existing collection.
-    # TODO: Fix it.
-    # This endpoint keeps returning the following error:
-    # => {"error"=>[{"message"=>"properties cannot be updated through updating the class. Use the add property feature (e.g. \"POST /v1/schema/{className}/properties\") to add additional properties"}]}
+    # Weaviate replaces the whole collection definition on update, so the provided settings are merged
+    # into the current definition. Immutable settings and existing properties cannot be changed.
     def update(
       class_name:,
       description: nil,
@@ -88,21 +87,21 @@ module Weaviate
       inverted_index_config: nil,
       replication_config: nil
     )
+      changes = {
+        "description" => description,
+        "vectorIndexType" => vector_index_type,
+        "vectorIndexConfig" => vector_index_config,
+        "vectorizer" => vectorizer,
+        "moduleConfig" => module_config,
+        "properties" => properties,
+        "invertedIndexConfig" => inverted_index_config,
+        "replicationConfig" => replication_config
+      }.compact
+
       response = client.connection.put("#{PATH}/#{class_name}") do |req|
-        req.body = {}
-        req.body["class"] = class_name unless class_name.nil?
-        req.body["description"] = description unless description.nil?
-        req.body["vectorIndexType"] = vector_index_type unless vector_index_type.nil?
-        req.body["vectorIndexConfig"] = vector_index_config unless vector_index_config.nil?
-        req.body["vectorizer"] = vectorizer unless vectorizer.nil?
-        req.body["moduleConfig"] = module_config unless module_config.nil?
-        req.body["properties"] = properties unless properties.nil?
-        req.body["invertedIndexConfig"] = inverted_index_config unless inverted_index_config.nil?
-        req.body["replicationConfig"] = replication_config unless replication_config.nil?
+        req.body = deep_merge(get(class_name: class_name), JSON.parse(changes.to_json))
       end
 
-      if response.success?
-      end
       response.body
     end
 
@@ -171,6 +170,12 @@ module Weaviate
     end
 
     private
+
+    def deep_merge(current, changes)
+      current.merge(changes) do |_key, current_value, new_value|
+        (current_value.is_a?(Hash) && new_value.is_a?(Hash)) ? deep_merge(current_value, new_value) : new_value
+      end
+    end
 
     def validate_status!(status)
       unless %w[READONLY READY].include?(status.to_s.upcase)
